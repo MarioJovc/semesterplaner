@@ -1,0 +1,28 @@
+# Betriebssystem
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editoren und IDEs
+.idea/
+*.iml
+.vscode/*
+!.vscode/extensions.json
+.vs/
+.fleet/
+.cursor/
+*.swp
+
+# Lokaler Nachbau der Pages-Seite
+_site/
+
+# Exportierte Pläne enthalten deinen Studienstand
+semesterplan-*.json
+
+# Logs
+*.log
+
+# Geheimnisse und lokale Konfiguration
+.env
+.env.*
+!.env.example
