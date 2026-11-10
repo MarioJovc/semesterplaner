@@ -1,0 +1,26 @@
+name: Termin oder Modul korrigieren
+description: Ein Klausurtermin, eine Modulnummer oder Credit Points stimmen nicht mehr
+labels: ["Daten"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Verbindlich ist TUCaN. Wenn du dort einen anderen Stand siehst, hilft ein Hinweis auf die Quelle, etwa der Prüfungsplan mit Datum.
+  - type: input
+    id: modul
+    attributes:
+      label: Modul oder Prüfung
+      placeholder: z. B. Statistik für Wirtschaftswissenschaften, 04-10-0593
+    validations:
+      required: true
+  - type: textarea
+    id: korrektur
+    attributes:
+      label: Was ist falsch, und was stimmt?
+    validations:
+      required: true
+  - type: input
+    id: quelle
+    attributes:
+      label: Quelle
+      placeholder: z. B. Prüfungsplan SoSe 2027, Stand 01.04.2027
