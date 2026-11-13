@@ -21,6 +21,7 @@ Ein Planer für den Bachelor Wirtschaftsinformatik an der TU Darmstadt. Du verte
 ## Funktionen
 
 - **Semesterplan:** startet mit dem Studienplan aus der Modulübersicht; Module verschiebst du per Drag & Drop mit Maus, Stift oder Finger oder im Moduldetail
+- **Urlaubssemester, Praktikum und Ausland:** ein Klick auf die Semesternummer legt die Art des Semesters und eine Notiz fest; ein leeres Semester fügst du davor oder danach ein, spätere Module rücken nach. Urlaubssemester zählen nicht als Fachsemester
 - **Modulkatalog** für die Wahlbereiche Informatik, Recht und Wirtschaft sowie Studium Generale, mit Platzhaltern und eigenen Modulen
 - **Prüfungen je Semester:** Ablauf, Zeitstrahl der Abstände und Kalender; Abstände von höchstens einem Tag und von zwei bis drei Tagen sind markiert
 - **Prüfungsplan der ganzen TU** durchsuchen, etwa für Studium Generale, und Treffer als eigenes Modul übernehmen
@@ -37,7 +38,8 @@ Ohne Internet: Lade [`Semesterplaner.html`](Semesterplaner.html) herunter (auf d
 
 1. Stell oben links dein aktuelles Semester und deinen Studienbeginn ein.
 2. Zieh Module in andere Semester oder öffne ein Modul und wähle „Geplant im“. Wahlmodule holst du aus dem Katalog rechts in die Platzhalter.
-3. Markiere Module als angemeldet oder bestanden. Unter „Prüfungen“ siehst du für jedes Semester, wann deine Klausuren liegen und wie viel Zeit dazwischen bleibt.
+3. Für ein Urlaubssemester, ein Praktikum oder ein Auslandssemester klickst du auf die Nummer des Semesters. Dort legst du die Art fest und fügst bei Bedarf ein leeres Semester ein; alle späteren Module rücken dann ein Semester nach hinten.
+4. Markiere Module als angemeldet oder bestanden. Unter „Prüfungen“ siehst du für jedes Semester, wann deine Klausuren liegen und wie viel Zeit dazwischen bleibt.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/pruefungen-dunkel.png">
