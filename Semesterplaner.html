@@ -1713,8 +1713,9 @@ body { background: var(--surface-page); color: var(--text-primary); }
 @container (max-width: 161px) { .col__cap { gap: 5px; padding: 0 8px; font-size: var(--font-size-xs); } .col__cap .tuda-icon { width: 14px; height: 14px; } }
 @container (max-width: 140px) { .col__cap { gap: 4px; padding: 0 7px; font-size: var(--font-size-2xs); } .col__cap .tuda-icon { width: 13px; height: 13px; } }
 @container (max-width: 126px) { .col__cap .cap-l { display: none; } .col__cap .cap-s { display: inline; } }
-.col__nicon { display: inline-flex; align-self: center; color: var(--text-tertiary); }
-.col__nicon .tuda-icon { width: 12px; height: 12px; }
+/* Notiz: kleiner Punkt oben an der Semesternummer */
+.col__num { position: relative; }
+.col__num.has-note::after { content: ""; position: absolute; top: 4px; right: -5px; width: 5px; height: 5px; border-radius: 50%; background: currentColor; opacity: 0.6; }
 /* Praktika und Jobs gehören nicht zur Uni: graues Glas wie die Module, aber mit gestrichelter Kontur */
 .mod.ext { --_rim: 0 0 0 0 transparent; border: 1.5px dashed color-mix(in srgb, var(--ink) 55%, transparent); padding: 7.5px 8.5px 8.5px; }
 .job { position: relative; margin: 0 4px 8px; z-index: 1; }
@@ -1739,6 +1740,24 @@ body.is-resizing-job, body.is-resizing-job * { cursor: ew-resize !important; }
 .job-load .tuda-icon { width: 14px; height: 14px; }
 .job-form__row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
 .job-form__save { align-self: end; }
+.rescue { margin: 0 0 var(--space-4); }
+.rescue__acts { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-3); }
+.save-state.is-error { color: var(--error-fg); }
+.col-pop .col-pop__rm:disabled { opacity: 0.45; cursor: not-allowed; }
+@media (max-width: 639.98px) { .strip-sec { display: none; } }
+/* Druck: Querformat, alle Semester nebeneinander, ohne Werkzeuge; Prüfungen auf einer neuen Seite */
+@media print {
+  @page { size: A4 landscape; margin: 10mm; }
+  .bar, .cat-cell, .addcol, .col__add, .job__grip, .ex-search, #col-pop, #chat, .rescue, .plan-foot { display: none !important; }
+  .plan-main { padding: 0; max-width: none; }
+  .plan-layout, .plan-layout.cat-closed { display: block; }
+  .board-wrap { overflow: visible !important; padding: 0; margin: 0; }
+  .board { grid-template-columns: repeat(var(--n, 6), minmax(0, 1fr)) !important; --col-gap: 6px; }
+  .col, .mod, .slot { break-inside: avoid; }
+  .board.is-entering .col, .board.is-entering .job, .board.is-entering .col__frame { animation: none !important; }
+  .exams { break-before: page; }
+  .tuda-tile, .tuda-card { box-shadow: none; }
+}
 @media (max-width: 479.98px) { .job-form__row { grid-template-columns: minmax(0, 1fr); } }
 /* „+ Praktikum“ im Urlaubssemester */
 .col__add { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 40px; padding: 0 var(--space-3); border: 1.5px dashed color-mix(in srgb, var(--text-tertiary) 55%, transparent); border-radius: var(--card-r); background: transparent; color: var(--text-secondary); font: inherit; font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); cursor: pointer; transition: background-color var(--duration-fast), color var(--duration-fast); }
@@ -1777,6 +1796,7 @@ body.is-resizing-job, body.is-resizing-job * { cursor: ew-resize !important; }
 .col__meter { grid-column: 1 / -1; height: 4px; margin-top: 8px; border-radius: var(--radius-full); background: var(--skeleton); overflow: hidden; }
 .col__meter i { display: block; height: 100%; border-radius: inherit; background: var(--text-tertiary); transition: width var(--duration-slow) var(--ease-standard); }
 .col.is-current .col__meter i { background: var(--primary); }
+.col.is-current .col__meter.is-high i { background: var(--warning-fg); }
 .col__meter.is-high i { background: var(--warning-fg); }
 .col__list { position: relative; flex: 1; display: flex; flex-direction: column; gap: 8px; min-height: 64px; padding: 0 4px 8px; }
 
@@ -2195,7 +2215,7 @@ span.tuda-calendar__day:hover { background: transparent; }
         <div class="tuda-filterbar">
           <div class="tuda-field tuda-field--grow">
             <label class="tuda-label" for="ex-q">Suchbegriff</label>
-            <div class="tuda-input-wrap"><svg data-icon="search"></svg><input class="tuda-input" id="ex-q" type="search" placeholder="z. B. Datenbanksysteme" autocomplete="off"></div>
+            <div class="tuda-input-wrap"><svg data-icon="search"></svg><input class="tuda-input" id="ex-q" type="search" placeholder="z. B. Psychologie" autocomplete="off"></div>
           </div>
           <div class="tuda-field">
             <label class="tuda-label" for="ex-plan">Prüfungsplan</label>
@@ -3219,7 +3239,7 @@ function semSpan(a, b){ return a===b ? a+'. Semester' : a+'. bis '+b+'. Semester
 const LS_KEY = 'winf-semesterplaner-v1';
 const UI_KEY = 'winf-semesterplaner-ui';
 function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
-function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
+function lsSet(k,v){ try { localStorage.setItem(k,v); return true; } catch(e){ return false; } }
 function safeParse(s){ try { return s ? JSON.parse(s) : null; } catch(e){ return null; } }
 const byRow = (a, b)=>(b.type==='intern') - (a.type==='intern') || a.row - b.row;   // Praktika immer zuerst
 function colOf(items, sem){ return items.filter(i=>i.sem===sem).sort(byRow); }
@@ -3237,6 +3257,21 @@ function cleanStatus(raw){
     else if (v && typeof v==='object'){ st = ['planned','registered','passed'].includes(v.st) ? v.st : 'planned'; fails = Math.max(0, Math.min(MAX_TRIES, Math.round(+v.fails)||0)); }
     if (fails >= MAX_TRIES && st==='passed') st = 'planned';
     if (st!=='planned' || fails) out[ref] = {st, fails};
+  }
+  return out;
+}
+/* Eigene Module aus Speicher oder Import: nur bekannte Felder mit gültigen Werten */
+function cleanCustom(raw){
+  const out = {};
+  if (!raw || typeof raw!=='object') return out;
+  for (const k in raw){
+    const d = raw[k];
+    if (!d || typeof d!=='object' || !/^[\w-]{1,40}$/.test(k)) continue;
+    const name = String(d.name||'').trim().slice(0, 80); if (!name) continue;
+    const c = {name, cp: Math.max(0, Math.min(30, Math.round((+d.cp||0)*2)/2)), cat: CATS[d.cat] ? d.cat : 'extra', nr: String(d.nr||'').trim().slice(0, 40)};
+    if (AREAS[d.catalog]) c.catalog = d.catalog;
+    if (typeof d.exam==='string' && d.exam) c.exam = d.exam.slice(0, 200);
+    out[k] = c;
   }
   return out;
 }
@@ -3268,7 +3303,7 @@ function sanitize(s){
   const d = defaultState();
   const out = {v:2, start: /^(WS|SS)\d{4}$/.test(s.start) ? s.start : d.start,
     current: Math.max(1, Math.round(+s.current)||d.current), semCount: Math.max(6, Math.min(16, Math.round(+s.semCount)||6)),
-    items:[], status: cleanStatus(s.status), custom: (s.custom && typeof s.custom==='object') ? s.custom : {}};
+    items:[], status: cleanStatus(s.status), custom: cleanCustom(s.custom)};
   const N = out.semCount, semOk = v => Math.max(1, Math.min(N, Math.round(+v)||1));
   out.semInfo = cleanSemInfo(s.semInfo, N);
   out.jobs = cleanJobs(s.jobs, N);
@@ -3337,15 +3372,19 @@ function saveUI(){ lsSet(UI_KEY, JSON.stringify({catTab:ui.catTab, examSem:ui.ex
 let dbRef = null, writing = false, dirty = false, saveTimer = null, editedEarly = false;
 function setSaveStatus(kind){
   const el = $('#save-status');
+  if (kind==='error'){ el.className = 'save-state is-error'; el.innerHTML = ic('alert-triangle')+'<span class="tuda-sr-only">Nicht gespeichert</span>'; el.title = 'Nicht gespeichert: Der Browser lässt gerade nichts speichern. Exportiere deinen Plan.'; return; }
   if (kind==='saving'){ el.className = 'save-state is-busy'; el.innerHTML = ic('refresh')+'<span class="tuda-sr-only">Speichert …</span>'; el.title = 'Speichert …'; return; }
   if (dbRef){ el.className = 'save-state is-ok'; el.innerHTML = ic('check-circle')+'<span class="tuda-sr-only">Im Konto gespeichert</span>'; el.title = 'Im Konto gespeichert. Dein Plan liegt privat in deinem Claude-Konto.'; }
   else { el.className = 'save-state'; el.innerHTML = ic('check')+'<span class="tuda-sr-only">Lokal gespeichert</span>'; el.title = 'In diesem Browser gespeichert.'; }
 }
+let saveFailShown = false, persistAsked = false;
 function commit(){
-  lsSet(LS_KEY, JSON.stringify(state));
+  const ok = lsSet(LS_KEY, JSON.stringify(state));
   editedEarly = true;
   clearTimeout(saveTimer);
-  if (!dbRef){ setSaveStatus('local'); return; }
+  if (!ok && !dbRef && !saveFailShown){ saveFailShown = true; toast('Speichern fehlgeschlagen', {text:'Der Browser lässt gerade nichts speichern, etwa im privaten Fenster oder bei vollem Speicher. Exportiere deinen Plan, damit nichts verloren geht.', tone:'warning', timeout:12000}); }
+  if (ok && !persistAsked){ persistAsked = true; try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(()=>{}); } catch(e){} }
+  if (!dbRef){ setSaveStatus(ok ? 'local' : 'error'); return; }
   setSaveStatus('saving');
   saveTimer = setTimeout(flush, 700);
 }
@@ -3558,7 +3597,8 @@ const VIEWS = [['compact','Kompakte Ansicht','dashboard'],['detail','Ausführlic
 function renderTop(){
   $('#sem-chip-label').innerHTML = '<span class="sem-long">'+state.current+'. Semester</span><span class="sem-short">'+state.current+'. Sem.</span><span class="hide-sm"> · '+termOf(state.current).tiny+'</span>';
   $('#cur-sem').innerHTML = semOptions().map(o=>'<option value="'+o.value+'"'+(o.value===state.current?' selected':'')+'>'+esc(o.label)+'</option>').join('');
-  let opts = ''; for (let i=termIndex('WS2021'); i<=termIndex('WS2026'); i++){ const k = termFromIndex(i); opts += '<option value="'+k+'"'+(k===state.start?' selected':'')+'>'+termLabel(k)+'</option>'; }
+  const yNow = new Date().getFullYear(), lo = Math.min(termIndex('WS'+(yNow-8)), termIndex(state.start)), hi = Math.max(termIndex('WS'+(yNow+1)), termIndex(state.start));
+  let opts = ''; for (let i=lo; i<=hi; i++){ const k = termFromIndex(i); opts += '<option value="'+k+'"'+(k===state.start?' selected':'')+'>'+termLabel(k)+'</option>'; }
   $('#start-term').innerHTML = opts;
   const undoBtn = $('#btn-undo');
   if (historyStack.length) undoBtn.removeAttribute('aria-disabled'); else undoBtn.setAttribute('aria-disabled','true');
@@ -3698,6 +3738,7 @@ function renderBoard(){
   flipFrom = null;
   board.classList.toggle('is-detail', ui.view==='detail');
   board.style.gridTemplateColumns = 'repeat('+N+', minmax(var(--plan-col), 1fr)) var(--plan-add)';
+  board.style.setProperty('--n', N);
   const JL = jobLanes(), caps = Array.from({length:N}, (_, i)=>semKind(i+1)!=='study').some(Boolean), head = caps ? 2 : 1;
   const depth = Array(N+2).fill(0); for (const {j, lane} of JL.at) for (let s=j.from; s<=j.to; s++) depth[s] = Math.max(depth[s], lane);
   board.classList.toggle('has-caps', caps);
@@ -3708,7 +3749,7 @@ function renderBoard(){
     const kind = semKind(s), K = SEM_KINDS[kind], note = semNote(s), items = colItems(s), capped = caps && kind!=='study', hdRow = capped ? 2 : 1;
     const cpTip = high ? 'Mehr als 36 CP in einem Semester' : L.heavy ? cp+' CP und '+L.jh+' h Job sind zusammen etwa '+L.total+' Stunden pro Woche. Daneben sind etwa '+L.rec+' CP realistisch.' : L.jh ? 'Mit '+L.jh+' h Job etwa '+L.total+' Stunden pro Woche' : '';
     h += '<section class="col'+(now?' is-current':'')+(kind!=='study'?' kind-'+kind:'')+'" data-sem="'+s+'" style="grid-column:'+s+';--i:'+(s-1)+'" aria-label="'+esc(s+'. Semester, '+t.label+(kind!=='study'?', '+K.long:'')+', '+cp+' CP'+(now?', aktuelles Semester':''))+'">'+
-      (capped ? capHTML(s) : '')+'<div class="col__hdw" style="grid-row:'+hdRow+'"><header class="col__hd"><button type="button" class="col__set" data-act="sem-set" data-s="'+s+'" aria-haspopup="dialog" aria-expanded="false" aria-controls="col-pop" title="'+esc(t.label+(kind!=='study' ? ' · '+K.long : '')+(note ? ' · Notiz: '+note : '')+' · Semester einstellen')+'"><span class="col__num" aria-hidden="true">'+s+'</span><span class="col__term">'+t.tiny+'</span>'+(note ? '<span class="col__nicon" aria-hidden="true">'+ic('edit')+'</span>' : '')+'<span class="tuda-sr-only">, '+esc(s+'. Semester einstellen')+'</span></button>'+
+      (capped ? capHTML(s) : '')+'<div class="col__hdw" style="grid-row:'+hdRow+'"><header class="col__hd"><button type="button" class="col__set" data-act="sem-set" data-s="'+s+'" aria-haspopup="dialog" aria-expanded="false" aria-controls="col-pop" title="'+esc(t.label+(kind!=='study' ? ' · '+K.long : '')+(note ? ' · Notiz: '+note : '')+' · Semester einstellen')+'"><span class="col__num'+(note ? ' has-note' : '')+'" aria-hidden="true">'+s+'</span><span class="col__term">'+t.tiny+'</span>'+'<span class="tuda-sr-only">, '+esc(s+'. Semester einstellen'+(note ? ', mit Notiz' : ''))+'</span></button>'+
       '<span class="col__cp'+(warnCP?' is-high':'')+'"'+(cpTip?' title="'+esc(cpTip)+'"':'')+'>'+cp+' CP'+(warnCP ? '<span class="tuda-sr-only">, '+esc(cpTip)+'</span>' : '')+'</span>'+
       (s===N && N>6 ? '<button type="button" class="tuda-btn tuda-btn--ghost tuda-btn--neutral tuda-btn--icon tuda-btn--sm col__rm" data-act="rm-sem" aria-label="Semester '+s+' entfernen" title="Semester '+s+' entfernen">'+ic('x')+'</button>' : '')+
       '<span class="col__meter'+(warnCP?' is-high':'')+'" aria-hidden="true"><i style="width:'+Math.min(100, cp/30*100)+'%"></i></span></header></div>'+
@@ -3723,9 +3764,15 @@ function renderBoard(){
   if (entering) board.style.setProperty('--enter-t', Math.round(performance.now() - enterAt)+'ms');
   board.innerHTML = h;
   if (flip) playBoardFlip(board, before, oldSt, oldCol);
-  if (!boardEntered){ boardEntered = true; enterAt = performance.now(); board.classList.add('is-entering'); setTimeout(()=>board.classList.remove('is-entering'), 1400); }
+  if (!boardEntered){ requestAnimationFrame(scrollToCurrent); boardEntered = true; enterAt = performance.now(); board.classList.add('is-entering'); setTimeout(()=>board.classList.remove('is-entering'), 1400); }
 }
 let boardEntered = false, enterAt = 0;
+/* Beim Laden: liegt das aktuelle Semester rechts außerhalb, dorthin scrollen */
+function scrollToCurrent(){
+  const w = $('#board-wrap'), c = w && w.querySelector('.col.is-current'); if (!c) return;
+  const cr = c.getBoundingClientRect(), wr = w.getBoundingClientRect();
+  if (cr.right > wr.right || cr.left < wr.left) w.scrollLeft += cr.left - wr.left - 8;
+}
 function playBoardFlip(board, before, oldSt, oldCol){
   board.querySelectorAll('[data-drag="item"]').forEach(el=>{
     const b = before.get(el.dataset.id);
@@ -4116,7 +4163,7 @@ function renderDetail(){
   } else if (c.type==='new'){
     kicker = 'Eigenes Modul'; title = 'Modul zum Plan hinzufügen';
     body += '<form id="new-form" class="tuda-stack" autocomplete="off">'+
-      '<div class="tuda-field"><label class="tuda-label" for="nf-name">Modulname</label><p class="tuda-hint" id="nf-name-h">Zum Beispiel eine Wiederholung oder eine Zusatzleistung. Wahlmodule planst du über den Katalog.</p><input class="tuda-input" id="nf-name" aria-describedby="nf-name-h" required autofocus></div>'+
+      '<div class="tuda-field"><label class="tuda-label" for="nf-name">Modulname</label><p class="tuda-hint" id="nf-name-h">Zum Beispiel eine Zusatzleistung oder ein Kurs aus dem Ausland. Wahlmodule planst du über den Katalog, Wiederholungen über die Fehlversuche im Modul.</p><input class="tuda-input" id="nf-name" aria-describedby="nf-name-h" required autofocus></div>'+
       '<div class="cat-form__row"><div class="tuda-field"><label class="tuda-label" for="nf-cat">Bereich</label>'+selectHTML('nf-cat', '', Object.keys(CATS).map(k=>({value:k, label:CATS[k].label})), 'extra')+'</div>'+
       '<div class="tuda-field"><label class="tuda-label" for="nf-cp">CP</label><input class="tuda-input" id="nf-cp" type="number" inputmode="numeric" min="0" max="30" required value="5"></div></div>'+
       '<div class="tuda-field"><label class="tuda-label" for="nf-sem">Semester</label>'+selectHTML('nf-sem', '', semOptions(true), state.current)+'</div>'+
@@ -4151,7 +4198,20 @@ function pickToast(ref, res){
 }
 
 /* ---------- Alles rendern ---------- */
-function renderAll(){ renderTop(); renderBoard(); renderCatalog(); renderExams(); renderDetail(); }
+function renderAll(){
+  try { renderTop(); renderBoard(); renderCatalog(); renderExams(); renderDetail(); rescue(false); }
+  catch(err){ console.error(err); rescue(true); }
+}
+/* Falls der Plan nicht gezeichnet werden kann: Hinweis mit Ausweg statt einer leeren Seite */
+function rescue(on){
+  let r = $('#rescue');
+  if (!on){ if (r) r.remove(); return; }
+  if (r) return;
+  r = document.createElement('div'); r.id = 'rescue'; r.className = 'tuda-alert tuda-alert--error rescue'; r.setAttribute('role', 'alert');
+  r.innerHTML = ic('alert-octagon')+'<div class="tuda-alert__content"><p class="tuda-alert__title">Dein Plan lässt sich nicht anzeigen</p><p class="tuda-alert__text">Er enthält Daten, mit denen der Planer nicht umgehen kann. Exportiere ihn zur Sicherheit und setze ihn dann zurück.</p>'+
+    '<div class="rescue__acts"><button type="button" class="tuda-btn tuda-btn--secondary tuda-btn--sm" data-act="export">'+ic('download')+'Plan exportieren</button><button type="button" class="tuda-btn tuda-btn--danger tuda-btn--sm" data-act="reset-ask">'+ic('trash')+'Plan zurücksetzen …</button></div></div>';
+  const layout = $('#layout'); layout.parentNode.insertBefore(r, layout);
+}
 
 /* ---------- Drag & Drop (Pointer: Maus, Stift, Touch) ---------- */
 let pend = null, drag = null, lastPt = null, rafId = 0;
@@ -4395,7 +4455,7 @@ function renderColPop(){
       '<button type="button" class="tuda-btn tuda-btn--secondary tuda-btn--sm" data-act="sem-insert" data-at="'+s+'"'+(N>=16 ? ' disabled' : '')+'>'+ic('arrow-left')+'Davor</button>'+
       '<button type="button" class="tuda-btn tuda-btn--secondary tuda-btn--sm" data-act="sem-insert" data-at="'+(s+1)+'"'+(N>=16 ? ' disabled' : '')+'>Danach'+ic('arrow-right')+'</button></div>'+
       '<p class="col-pop__hint"><span>Alles ab dort rückt ein Semester nach hinten. So planst du ein Urlaubssemester ein, ohne Module einzeln zu verschieben.</span></p></div>'+
-    (N>6 ? '<button type="button" class="tuda-btn tuda-btn--ghost tuda-btn--sm col-pop__rm" data-act="sem-remove" data-s="'+s+'"'+(empty ? '' : ' disabled title="Verschiebe zuerst die Module in andere Semester"')+'>'+ic('trash')+'Semester entfernen</button>' : '');
+    (N>6 ? '<button type="button" class="tuda-btn tuda-btn--ghost tuda-btn--sm col-pop__rm" data-act="sem-remove" data-s="'+s+'"'+(empty ? '' : ' disabled title="Verschiebe zuerst die Module in andere Semester"')+'>'+ic('trash')+'Semester entfernen</button>'+(empty ? '' : '<p class="col-pop__hint"><span>Entfernen geht nur bei leeren Semestern. Verschieb zuerst die Module.</span></p>') : '');
   syncSegments(colPop);
 }
 function openColPop(s, via){
@@ -4428,6 +4488,33 @@ $('#board-wrap').addEventListener('scroll', ()=>{ if (!colPop.hidden) placeColPo
 const bar = $('#bar');
 function onScroll(){ bar.classList.toggle('is-stuck', window.scrollY > 4); if (!pop.hidden) placePop(); if (!colPop.hidden) placeColPop(); }
 window.addEventListener('scroll', onScroll, {passive:true});
+
+/* Sicherung: Datum des letzten Exports merken und höchstens wöchentlich erinnern, wenn er länger als 30 Tage her ist */
+const BACKUP_KEY = 'winf-semesterplaner-backup';
+function markBackup(){ const b = safeParse(lsGet(BACKUP_KEY)) || {}; b.at = Date.now(); lsSet(BACKUP_KEY, JSON.stringify(b)); }
+function backupReminder(){
+  if (window.claude || !hadLocal) return;
+  const b = safeParse(lsGet(BACKUP_KEY)) || {}, day = 864e5, now = Date.now();
+  if (!b.seen){ b.seen = now; lsSet(BACKUP_KEY, JSON.stringify(b)); return; }
+  const since = b.at || b.seen;
+  if (now - since < 30*day || (b.reminded && now - b.reminded < 7*day)) return;
+  b.reminded = now; lsSet(BACKUP_KEY, JSON.stringify(b));
+  const days = Math.round((now - since)/day);
+  if (TU) TU.toast({title:'Zeit für eine Sicherung', text:(b.at ? 'Deinen letzten Export hast du vor '+days+' Tagen gemacht.' : 'Du hast deinen Plan noch nie exportiert.')+' Der Plan liegt nur in diesem Browser.', tone:'info', timeout:15000, action:{label:'Exportieren', onClick:exportPlan}});
+}
+setTimeout(backupReminder, 2500);
+/* Plan in einem anderen Tab geändert: diesen Stand übernehmen, statt ihn später zu überschreiben */
+window.addEventListener('storage', e=>{
+  if (e.key!==LS_KEY || !e.newValue || dbRef) return;
+  const s = sanitize(safeParse(e.newValue)); if (!s) return;
+  state = s; historyStack = []; renderAll();
+  toast('Plan aus einem anderen Tab übernommen', {text:'Dort hast du zuletzt etwas geändert.', tone:'info'});
+});
+if (/Mac|iPhone|iPad/.test(navigator.platform || '')){ const u = $('#btn-undo'); if (u) u.setAttribute('data-tuda-tooltip', 'Rückgängig (⌘Z)'); }
+/* Gedruckt wird immer hell, auch wenn gerade das dunkle Design aktiv ist */
+let themeBeforePrint = null;
+window.addEventListener('beforeprint', ()=>{ const r = document.documentElement; themeBeforePrint = r.getAttribute('data-theme'); r.setAttribute('data-theme', 'light'); });
+window.addEventListener('afterprint', ()=>{ const r = document.documentElement; if (themeBeforePrint===null) r.removeAttribute('data-theme'); else r.setAttribute('data-theme', themeBeforePrint); });
 document.addEventListener('keydown', e=>{
   if (e.key==='Escape' && drag){ cleanupDrag(); return; }
   if (e.key==='Escape' && !pop.hidden){ e.preventDefault(); closePop(true); return; }
@@ -4593,7 +4680,9 @@ $('#btn-cat').addEventListener('click', ()=>{ ui.catOpen = !ui.catOpen; saveUI()
 $('#file-import').addEventListener('change', e=>{
   const f = e.target.files && e.target.files[0]; if (!f) return;
   const r = new FileReader();
-  r.onload = ()=>{ const j = safeParse(r.result); const s = sanitize(j && j.state ? j.state : j); if (!s){ toast('Import nicht möglich', {text:'Die Datei enthält keinen gültigen Semesterplan. Wähle eine exportierte JSON-Datei.', tone:'warning'}); return; } mutate(()=>{ state = s; }); toast('Plan importiert', {undo:true}); };
+  r.onload = ()=>{ const j = safeParse(r.result);
+    if (j && j.app && j.app!=='winf-semesterplaner'){ toast('Import nicht möglich', {text:'Die Datei stammt aus einer anderen Planer-Version und passt nicht zu Wirtschaftsinformatik.', tone:'warning'}); return; }
+    const s = sanitize(j && j.state ? j.state : j); if (!s){ toast('Import nicht möglich', {text:'Die Datei enthält keinen gültigen Semesterplan. Wähle eine exportierte JSON-Datei.', tone:'warning'}); return; } mutate(()=>{ state = s; }); toast('Plan importiert', {undo:true}); };
   r.readAsText(f); e.target.value = '';
 });
 $('#catalog').addEventListener('input', e=>{
@@ -4653,14 +4742,14 @@ async function exportPlan(){
   const data = JSON.stringify({app:'winf-semesterplaner', exported:new Date().toISOString(), state}, null, 2);
   try {
     const dl = window.claude && typeof window.claude.use==='function' ? await window.claude.use('downloads') : null;
-    if (dl){ await dl.save({filename:'semesterplan-wirtschaftsinformatik.json', data}); toast('Plan exportiert'); return; }
+    if (dl){ await dl.save({filename:'semesterplan-wirtschaftsinformatik.json', data}); markBackup(); toast('Plan exportiert'); return; }
   } catch(err){ if (err && err.code==='declined') return; }
   if (!window.claude){
     try {
       const url = URL.createObjectURL(new Blob([data], {type:'application/json'})), link = document.createElement('a');
       link.href = url; link.download = 'semesterplan-wirtschaftsinformatik.json'; document.body.appendChild(link); link.click(); link.remove();
       setTimeout(()=>URL.revokeObjectURL(url), 2000);
-      toast('Plan exportiert', {text:'Die JSON-Datei liegt in deinem Download-Ordner.'}); return;
+      markBackup(); toast('Plan exportiert', {text:'Die JSON-Datei liegt in deinem Download-Ordner.'}); return;
     } catch(err){}
   }
   try { await navigator.clipboard.writeText(data); toast('In die Zwischenablage kopiert', {text:'Dein Plan liegt als JSON in der Zwischenablage.'}); }
