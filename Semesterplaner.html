@@ -1667,8 +1667,9 @@ body { background: var(--surface-page); color: var(--text-primary); }
 .board-wrap { overflow-x: auto; overflow-y: hidden; padding: 2px 2px var(--space-1); margin: -2px -2px 0; }   /* senkrecht ragen nur Animationen hinaus: abschneiden statt Scrollleiste */
 .board { display: grid; gap: var(--col-gap); align-items: stretch; }
 .col { position: relative; display: flex; flex-direction: column; min-width: 0; border-radius: var(--radius-lg); transition: box-shadow var(--duration-fast); container-type: inline-size; }
-@container (max-width: 168px) {
-  .col .col__hd { gap: 0 4px; padding-left: 7px; padding-right: 5px; }
+@container (max-width: 220px) {
+  .col .col__hd { gap: 0 3px; padding-left: 6px; padding-right: 5px; }
+  .col .col__cp .tuda-icon, .col .col__rm { display: none; }   /* schmal: Warnung nur über die Farbe, Semester entfernen im Popover */
   .col .col__num { font-size: 20px; }
   .col .col__term, .col .col__cp { font-size: var(--font-size-xs); }
 }
@@ -1679,42 +1680,45 @@ body { background: var(--surface-page); color: var(--text-primary); }
 .col__set { display: flex; align-items: baseline; gap: 8px; min-width: 0; margin: -3px 0 -3px -6px; padding: 3px 6px; border: 0; border-radius: var(--radius-sm); background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; transition: background-color var(--duration-fast); }
 .col__set:hover, .col__set[aria-expanded="true"] { background: var(--state-hover); }
 .col__set:focus-visible { outline: var(--border-width-thick) solid var(--focus-ring); outline-offset: 1px; }
-@container (max-width: 168px) { .col .col__set { gap: 4px; margin-left: -4px; padding-inline: 4px; } }
+@container (max-width: 220px) { .col .col__set { gap: 4px; margin-left: -4px; padding-inline: 4px; } }
 /* Spalten als Unterraster: Kopf, Zeilen für Jobs, darunter die Module */
 .board { row-gap: 0; }
-.col { display: grid; grid-template-rows: subgrid; grid-row: 1 / -1; container-type: normal; }   /* ein Größen-Container wäre kein Unterraster */
+.col { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: subgrid; grid-row: 1 / -1; container-type: normal; }   /* minmax(0, 1fr): lange Wörter dürfen die Spalte nicht verbreitern */   /* ein Größen-Container wäre kein Unterraster */
 .addcol { grid-row: 1 / -1; }
 .board.has-caps .col, .board.has-caps .addcol { grid-row: 2 / -1; }
 .col__hdw { grid-row: 1; min-width: 0; container-type: inline-size; }
-/* Semesterart: feiner Rahmen um die Spalte, oben ein Verlauf; auf der Rahmenkante sitzt die Pille mit Symbol und Namen */
-.col.kind-leave, .col__capw.k-leave { --kc: var(--warning-fg); --kb: var(--warning-bg); }
-.col.kind-abroad, .col__capw.k-abroad { --kc: var(--success-fg); --kb: var(--success-bg); }
+/* Semesterart: feiner Rahmen um die ganze Spalte, oben ein Verlauf, innen mittig die Pille mit Symbol und Namen */
+.col.kind-leave, .col__capw.k-leave, .col__frame.k-leave { --kc: var(--warning-fg); --kb: var(--warning-bg); }
+.col.kind-abroad, .col__capw.k-abroad, .col__frame.k-abroad { --kc: var(--success-fg); --kb: var(--success-bg); }
 .col__capw.is-warn { --kc: var(--error-fg); --kb: var(--error-bg); }
 .board.has-caps .col.kind-leave, .board.has-caps .col.kind-abroad { grid-row: 1 / -1; }
 .col.kind-leave, .col.kind-abroad { isolation: isolate; background: none; }
-.col.kind-leave::before, .col.kind-abroad::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: var(--radius-lg); background: linear-gradient(180deg, color-mix(in srgb, var(--kb) 85%, transparent), transparent 220px); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--kc) 28%, transparent); pointer-events: none; }
-.board.has-caps .col.kind-leave::before, .board.has-caps .col.kind-abroad::before { top: 14px; }
-.col.kind-leave::before { background: linear-gradient(180deg, color-mix(in srgb, var(--kb) 85%, transparent), transparent 220px), repeating-linear-gradient(135deg, color-mix(in srgb, var(--text-primary) 4%, transparent) 0 5px, transparent 5px 12px); }
+.col.kind-leave::before, .col.kind-abroad::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: var(--radius-lg); background: linear-gradient(180deg, color-mix(in srgb, var(--kb) 85%, transparent), transparent 240px); pointer-events: none; }
+.col.kind-leave::before { background: linear-gradient(180deg, color-mix(in srgb, var(--kb) 85%, transparent), transparent 240px), repeating-linear-gradient(135deg, color-mix(in srgb, var(--text-primary) 4%, transparent) 0 5px, transparent 5px 12px); }
 .col.is-current.kind-leave::before, .col.is-current.kind-abroad::before { background-color: var(--surface-fill); }
 .col.kind-leave.drop-on, .col.kind-abroad.drop-on, .col.kind-leave.drop-no { box-shadow: none; }
 .col.kind-leave.drop-on::before, .col.kind-abroad.drop-on::before { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--primary) 45%, transparent); }
 .col.kind-leave.drop-no::before { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--warning-fg) 55%, transparent); }
-.col__capw { grid-row: 1; min-width: 0; padding: 0 8px; container-type: inline-size; }
-.col__cap { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; height: 28px; margin: 0; padding: 0 12px 0 10px; border: 0; border-radius: var(--radius-full); background: var(--kb); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--kc) 28%, transparent); color: var(--kc); font: inherit; font-size: var(--font-size-sm); line-height: 18px; font-weight: var(--font-weight-semibold); white-space: nowrap; cursor: pointer; transition: background-color var(--duration-fast), transform var(--duration-base) var(--ease-spring); }
+/* Rahmen als eigenes Element über den Jobkarten: er bleibt geschlossen, ein Job läuft darunter durch */
+.col__frame { grid-row: 1 / -1; position: relative; z-index: 2; border-radius: var(--radius-lg); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--kc) 30%, transparent); pointer-events: none; }
+.col__capw { grid-row: 1; display: flex; justify-content: center; min-width: 0; padding: 8px 3px 2px; container-type: inline-size; }
+.col__cap { display: inline-flex; align-items: center; justify-content: center; gap: 6px; max-width: 100%; height: 26px; margin: 0; padding: 0 11px; border: 0; border-radius: var(--radius-full); background: var(--kb); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--kc) 26%, transparent); color: var(--kc); font: inherit; font-size: var(--font-size-sm); line-height: 16px; font-weight: var(--font-weight-semibold); white-space: nowrap; cursor: pointer; transition: background-color var(--duration-fast), transform var(--duration-base) var(--ease-spring); }
 .col__cap:hover, .col__cap[aria-expanded="true"] { background: color-mix(in srgb, var(--kc) 12%, var(--kb)); }
 .col__cap:active { transform: scale(0.97); }
 .col__cap:focus-visible { outline: var(--border-width-thick) solid var(--focus-ring); outline-offset: 2px; }
 .col__cap .tuda-icon { flex: none; width: 15px; height: 15px; stroke-width: 2.25; }
 .col__cap > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-@container (max-width: 172px) { .col__cap { gap: 5px; padding: 0 10px 0 9px; font-size: var(--font-size-xs); } .col__cap .tuda-icon { width: 14px; height: 14px; } }
-@container (max-width: 152px) { .col__capw { padding: 0 2px; } .col__cap { gap: 4px; padding: 0 8px; font-size: var(--font-size-2xs); } .col__cap .tuda-icon { width: 13px; height: 13px; } }
+.col__cap .cap-s { display: none; }
+/* Die Pille wird mit der Spalte kleiner, statt den Namen abzuschneiden; nur ganz schmal steht die Kurzform */
+@container (max-width: 161px) { .col__cap { gap: 5px; padding: 0 8px; font-size: var(--font-size-xs); } .col__cap .tuda-icon { width: 14px; height: 14px; } }
+@container (max-width: 140px) { .col__cap { gap: 4px; padding: 0 7px; font-size: var(--font-size-2xs); } .col__cap .tuda-icon { width: 13px; height: 13px; } }
+@container (max-width: 126px) { .col__cap .cap-l { display: none; } .col__cap .cap-s { display: inline; } }
 .col__nicon { display: inline-flex; align-self: center; color: var(--text-tertiary); }
-.col__nicon .tuda-icon { width: 13px; height: 13px; }
-/* Praktika und Jobs gehören nicht zur Uni: grau und matt, mit feiner, festerer Kontur statt Glanz */
-.ext { background: var(--tint); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 46%, transparent); }
-.ext:hover, .ext.is-hover { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 66%, transparent), 0 2px 8px color-mix(in srgb, var(--ink) 14%, transparent); }
+.col__nicon .tuda-icon { width: 12px; height: 12px; }
+/* Praktika und Jobs gehören nicht zur Uni: graues Glas wie die Module, aber mit gestrichelter Kontur */
+.mod.ext { --_rim: 0 0 0 0 transparent; border: 1.5px dashed color-mix(in srgb, var(--ink) 55%, transparent); padding: 7.5px 8.5px 8.5px; }
 .job { position: relative; margin: 0 4px 8px; z-index: 1; }
-.job.is-moving, .job.is-resizing { z-index: 2; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 66%, transparent), 0 8px 20px color-mix(in srgb, var(--ink) 24%, transparent); }
+.job.is-moving, .job.is-resizing { z-index: 3; --_lift: 0 8px 20px color-mix(in srgb, var(--ink) 24%, transparent); }
 .job__warn { color: var(--warning-fg); }
 .job__grip { position: absolute; top: 4px; bottom: 4px; width: 12px; cursor: ew-resize; touch-action: none; }
 .job__grip--start { left: 0; }
@@ -1765,9 +1769,9 @@ body.is-resizing-job, body.is-resizing-job * { cursor: ew-resize !important; }
 .col.is-current .col__num { color: var(--primary); }
 .col__term { font-size: var(--font-size-sm); line-height: 18px; font-weight: var(--font-weight-semibold); color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .col.is-current .col__term { color: var(--on-primary-subtle); }
-.col__cp { display: inline-flex; align-items: center; gap: 4px; font-size: var(--font-size-sm); line-height: 18px; font-weight: var(--font-weight-semibold); color: var(--text-secondary); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.col__cp { display: inline-block; font-size: var(--font-size-sm); line-height: 18px; font-weight: var(--font-weight-semibold); color: var(--text-secondary); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .col__cp.is-high { color: var(--warning-fg); }
-.col__cp .tuda-icon { width: 13px; height: 13px; }
+.col__cp .tuda-icon { width: 13px; height: 13px; margin-right: 3px; vertical-align: -2px; }   /* steht auf der Grundlinie der Zahl */
 .col__rm { align-self: center; margin: -8px -4px -8px 0; }
 .col__rm.tuda-btn--icon.tuda-btn--sm { width: 26px; min-width: 26px; min-height: 26px; }
 .col__meter { grid-column: 1 / -1; height: 4px; margin-top: 8px; border-radius: var(--radius-full); background: var(--skeleton); overflow: hidden; }
@@ -2041,7 +2045,7 @@ span.tuda-calendar__day:hover { background: transparent; }
 @keyframes plan-fade { from { opacity: 0; transform: scale(0.985); } to { opacity: 1; transform: none; } }
 @keyframes plan-meter { from { width: 0; } }
 @media (prefers-reduced-motion: no-preference) {
-  .board.is-entering .col, .board.is-entering .job { animation: plan-rise 0.55s var(--ease-enter) both; animation-delay: calc(var(--i, 0) * 55ms - var(--enter-t, 0ms)); }
+  .board.is-entering .col, .board.is-entering .job, .board.is-entering .col__frame { animation: plan-rise 0.55s var(--ease-enter) both; animation-delay: calc(var(--i, 0) * 55ms - var(--enter-t, 0ms)); }
   .board.is-entering .col__meter i { animation: plan-meter 0.9s var(--ease-standard) both; animation-delay: calc(var(--i, 0) * 55ms + 250ms - var(--enter-t, 0ms)); }
   .board.is-switching .mod > *, .board.is-switching .slot > * { animation: plan-content 0.38s var(--ease-enter) both; }
 }
@@ -3658,7 +3662,7 @@ function capHTML(s){
   const kind = semKind(s), K = SEM_KINDS[kind], note = semNote(s), warn = kind==='leave' && state.items.some(i=>i.sem===s && i.type!=='intern');
   const tip = K.long+(note ? ': '+note : '')+(warn ? '. '+LEAVE_BLOCK+' Verschieb die Module in ein anderes Semester.' : '');
   return '<div class="col__capw k-'+kind+(warn ? ' is-warn' : '')+'"><button type="button" class="col__cap" data-act="sem-set" data-s="'+s+'" aria-haspopup="dialog" aria-expanded="false" aria-controls="col-pop" title="'+esc(tip)+'" aria-label="'+esc(s+'. Semester: '+tip+'. Semester einstellen')+'">'+
-    ic(warn ? 'alert-triangle' : K.icon)+'<span>'+esc(K.long)+'</span></button></div>';
+    ic(warn ? 'alert-triangle' : K.icon)+'<span class="cap-l">'+esc(K.long)+'</span><span class="cap-s">'+esc(K.label)+'</span></button></div>';
 }
 /* Jobs liegen oben in den Spalten; was sich zeitlich nicht überschneidet, teilt sich eine Zeile */
 function jobLanes(){
@@ -3705,7 +3709,7 @@ function renderBoard(){
     const cpTip = high ? 'Mehr als 36 CP in einem Semester' : L.heavy ? cp+' CP und '+L.jh+' h Job sind zusammen etwa '+L.total+' Stunden pro Woche. Daneben sind etwa '+L.rec+' CP realistisch.' : L.jh ? 'Mit '+L.jh+' h Job etwa '+L.total+' Stunden pro Woche' : '';
     h += '<section class="col'+(now?' is-current':'')+(kind!=='study'?' kind-'+kind:'')+'" data-sem="'+s+'" style="grid-column:'+s+';--i:'+(s-1)+'" aria-label="'+esc(s+'. Semester, '+t.label+(kind!=='study'?', '+K.long:'')+', '+cp+' CP'+(now?', aktuelles Semester':''))+'">'+
       (capped ? capHTML(s) : '')+'<div class="col__hdw" style="grid-row:'+hdRow+'"><header class="col__hd"><button type="button" class="col__set" data-act="sem-set" data-s="'+s+'" aria-haspopup="dialog" aria-expanded="false" aria-controls="col-pop" title="'+esc(t.label+(kind!=='study' ? ' · '+K.long : '')+(note ? ' · Notiz: '+note : '')+' · Semester einstellen')+'"><span class="col__num" aria-hidden="true">'+s+'</span><span class="col__term">'+t.tiny+'</span>'+(note ? '<span class="col__nicon" aria-hidden="true">'+ic('edit')+'</span>' : '')+'<span class="tuda-sr-only">, '+esc(s+'. Semester einstellen')+'</span></button>'+
-      '<span class="col__cp'+(warnCP?' is-high':'')+'"'+(cpTip?' title="'+esc(cpTip)+'"':'')+'>'+(warnCP?ic('alert-triangle'):'')+cp+' CP</span>'+
+      '<span class="col__cp'+(warnCP?' is-high':'')+'"'+(cpTip?' title="'+esc(cpTip)+'"':'')+'>'+cp+' CP'+(warnCP ? '<span class="tuda-sr-only">, '+esc(cpTip)+'</span>' : '')+'</span>'+
       (s===N && N>6 ? '<button type="button" class="tuda-btn tuda-btn--ghost tuda-btn--neutral tuda-btn--icon tuda-btn--sm col__rm" data-act="rm-sem" aria-label="Semester '+s+' entfernen" title="Semester '+s+' entfernen">'+ic('x')+'</button>' : '')+
       '<span class="col__meter'+(warnCP?' is-high':'')+'" aria-hidden="true"><i style="width:'+Math.min(100, cp/30*100)+'%"></i></span></header></div>'+
       '<div class="col__list" data-sem="'+s+'" style="grid-row:'+(hdRow + 1 + depth[s])+' / -1">';
@@ -3714,6 +3718,7 @@ function renderBoard(){
     h += '</div></section>';
   }
   for (const {j, lane} of JL.at) h += jobHTML(j, head + lane);
+  if (caps) for (let s=1; s<=N; s++) if (semKind(s)!=='study') h += '<div class="col__frame k-'+semKind(s)+'" style="grid-column:'+s+';--i:'+(s-1)+'" aria-hidden="true"></div>';
   h += '<button type="button" class="addcol" style="grid-column:'+(N+1)+'" data-act="add-sem" aria-label="Semester '+(N+1)+' hinzufügen" title="Semester '+(N+1)+' hinzufügen">'+ic('plus')+'<span>Semester '+(N+1)+'</span></button>';
   if (entering) board.style.setProperty('--enter-t', Math.round(performance.now() - enterAt)+'ms');
   board.innerHTML = h;
