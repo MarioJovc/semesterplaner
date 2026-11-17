@@ -21,7 +21,7 @@ Ein Planer für den Bachelor Wirtschaftsinformatik an der TU Darmstadt. Du verte
 ## Funktionen
 
 - **Semesterplan:** startet mit dem Studienplan aus der Modulübersicht; Module verschiebst du per Drag & Drop mit Maus, Stift oder Finger oder im Moduldetail
-- **Urlaub, Ausland, Praktika und Jobs:** ein Klick auf die Semesternummer macht ein Semester zum Urlaubs- oder Auslandssemester, mit Notiz; ein leeres Semester fügst du davor oder danach ein, spätere Module rücken nach. Urlaub, Ausland und Werkstudentenjobs stehen in einer Zeitleiste über den Semestern. Zu jedem Job schätzt der Planer die Woche aus Studium und Job und markiert Semester, in denen es zu viel wird. Praktika sind eigene Karten ohne CP und das Einzige, was ins Urlaubssemester darf; Urlaubssemester zählen nicht als Fachsemester
+- **Urlaub, Ausland, Praktika und Jobs:** ein Klick auf die Semesternummer macht ein Semester zum Urlaubs- oder Auslandssemester, mit Notiz; die ganze Spalte trägt dann dessen Farbe. Ein leeres Semester fügst du davor oder danach ein, spätere Module rücken nach. Praktika und Werkstudentenjobs sind graue Karten ohne CP, die oben im Semester stehen; einen Job ziehst du an den Kanten über mehrere Semester. Der Planer schätzt dazu die Woche aus Studium und Job und markiert Semester, in denen es zu viel wird. Ins Urlaubssemester dürfen nur Praktika; Urlaubssemester zählen nicht als Fachsemester
 - **Modulkatalog** für die Wahlbereiche Informatik, Recht und Wirtschaft sowie Studium Generale, mit Platzhaltern und eigenen Modulen
 - **Prüfungen je Semester:** Ablauf, Zeitstrahl der Abstände und Kalender; Abstände von höchstens einem Tag und von zwei bis drei Tagen sind markiert
 - **Prüfungsplan der ganzen TU** durchsuchen, etwa für Studium Generale, und Treffer als eigenes Modul übernehmen
@@ -38,7 +38,7 @@ Ohne Internet: Lade [`Semesterplaner.html`](Semesterplaner.html) herunter (auf d
 
 1. Stell oben links dein aktuelles Semester und deinen Studienbeginn ein.
 2. Zieh Module in andere Semester oder öffne ein Modul und wähle „Geplant im“. Wahlmodule holst du aus dem Katalog rechts in die Platzhalter.
-3. Für ein Urlaubs- oder Auslandssemester klickst du auf die Nummer des Semesters. Dort legst du die Art fest, fügst bei Bedarf ein leeres Semester ein (alle späteren Module rücken ein Semester nach hinten) und planst Praktika und Jobs ein. Ins Urlaubssemester kommen nur Praktika, keine Module. Urlaub, Ausland und Jobs erscheinen in der Zeitleiste über den Semestern; ein Klick darauf zeigt die Details.
+3. Für ein Urlaubs- oder Auslandssemester klickst du auf die Nummer des Semesters. Dort legst du die Art fest, fügst bei Bedarf ein leeres Semester ein (alle späteren Module rücken ein Semester nach hinten) und planst Praktika und Jobs ein. Ins Urlaubssemester kommen nur Praktika, keine Module. Einen Job verschiebst du per Drag & Drop und ziehst ihn an den Kanten über mehrere Semester; ein Klick darauf zeigt die Details.
 4. Markiere Module als angemeldet oder bestanden. Unter „Prüfungen“ siehst du für jedes Semester, wann deine Klausuren liegen und wie viel Zeit dazwischen bleibt.
 
 <picture>
