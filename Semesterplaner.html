@@ -1686,27 +1686,35 @@ body { background: var(--surface-page); color: var(--text-primary); }
 .addcol { grid-row: 1 / -1; }
 .board.has-caps .col, .board.has-caps .addcol { grid-row: 2 / -1; }
 .col__hdw { grid-row: 1; min-width: 0; container-type: inline-size; }
-/* Semesterart: die ganze Spalte trägt die Farbe, oben steht ihr Name */
-.col.kind-leave, .col__cap.k-leave { --kc: var(--warning-fg); --kb: var(--warning-bg); }
-.col.kind-abroad, .col__cap.k-abroad { --kc: var(--success-fg); --kb: var(--success-bg); }
-.col__cap.is-warn { --kc: var(--error-fg); --kb: var(--error-bg); }
-.col.kind-leave, .col.kind-abroad { --ring: color-mix(in srgb, var(--kc) 34%, transparent); background-color: color-mix(in srgb, var(--kb) 75%, transparent); box-shadow: inset 1.5px 0 0 var(--ring), inset -1.5px 0 0 var(--ring), inset 0 -1.5px 0 var(--ring); }
-.board.has-caps .col.kind-leave, .board.has-caps .col.kind-abroad { border-top-left-radius: 0; border-top-right-radius: 0; }
-.col.drop-on.drop-on { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--primary) 45%, transparent); }
-.col.drop-no.drop-no { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--warning-fg) 55%, transparent); }
-.col__cap { --ring: color-mix(in srgb, var(--kc) 34%, transparent); grid-row: 1; display: flex; align-items: center; gap: 6px; min-width: 0; height: 32px; margin: 0; padding: 0 12px; border: 0; border-radius: var(--radius-lg) var(--radius-lg) 0 0; background: color-mix(in srgb, var(--kc) 16%, var(--kb)); box-shadow: inset 1.5px 0 0 var(--ring), inset -1.5px 0 0 var(--ring), inset 0 1.5px 0 var(--ring); color: var(--kc); font: inherit; font-size: var(--font-size-sm); line-height: 18px; font-weight: var(--font-weight-semibold); white-space: nowrap; text-align: left; cursor: pointer; transition: background-color var(--duration-fast); container-type: inline-size; }
-.col__cap:hover, .col__cap[aria-expanded="true"] { background: color-mix(in srgb, var(--kc) 24%, var(--kb)); }
-.col__cap:focus-visible { outline: var(--border-width-thick) solid var(--focus-ring); outline-offset: -3px; }
+/* Semesterart: feiner Rahmen um die Spalte, oben ein Verlauf; auf der Rahmenkante sitzt die Pille mit Symbol und Namen */
+.col.kind-leave, .col__capw.k-leave { --kc: var(--warning-fg); --kb: var(--warning-bg); }
+.col.kind-abroad, .col__capw.k-abroad { --kc: var(--success-fg); --kb: var(--success-bg); }
+.col__capw.is-warn { --kc: var(--error-fg); --kb: var(--error-bg); }
+.board.has-caps .col.kind-leave, .board.has-caps .col.kind-abroad { grid-row: 1 / -1; }
+.col.kind-leave, .col.kind-abroad { isolation: isolate; background: none; }
+.col.kind-leave::before, .col.kind-abroad::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: var(--radius-lg); background: linear-gradient(180deg, color-mix(in srgb, var(--kb) 85%, transparent), transparent 220px); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--kc) 28%, transparent); pointer-events: none; }
+.board.has-caps .col.kind-leave::before, .board.has-caps .col.kind-abroad::before { top: 14px; }
+.col.kind-leave::before { background: linear-gradient(180deg, color-mix(in srgb, var(--kb) 85%, transparent), transparent 220px), repeating-linear-gradient(135deg, color-mix(in srgb, var(--text-primary) 4%, transparent) 0 5px, transparent 5px 12px); }
+.col.is-current.kind-leave::before, .col.is-current.kind-abroad::before { background-color: var(--surface-fill); }
+.col.kind-leave.drop-on, .col.kind-abroad.drop-on, .col.kind-leave.drop-no { box-shadow: none; }
+.col.kind-leave.drop-on::before, .col.kind-abroad.drop-on::before { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--primary) 45%, transparent); }
+.col.kind-leave.drop-no::before { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--warning-fg) 55%, transparent); }
+.col__capw { grid-row: 1; min-width: 0; padding: 0 8px; container-type: inline-size; }
+.col__cap { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; height: 28px; margin: 0; padding: 0 12px 0 10px; border: 0; border-radius: var(--radius-full); background: var(--kb); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--kc) 28%, transparent); color: var(--kc); font: inherit; font-size: var(--font-size-sm); line-height: 18px; font-weight: var(--font-weight-semibold); white-space: nowrap; cursor: pointer; transition: background-color var(--duration-fast), transform var(--duration-base) var(--ease-spring); }
+.col__cap:hover, .col__cap[aria-expanded="true"] { background: color-mix(in srgb, var(--kc) 12%, var(--kb)); }
+.col__cap:active { transform: scale(0.97); }
+.col__cap:focus-visible { outline: var(--border-width-thick) solid var(--focus-ring); outline-offset: 2px; }
 .col__cap .tuda-icon { flex: none; width: 15px; height: 15px; stroke-width: 2.25; }
 .col__cap > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-.col__dot { flex: none; width: 5px; height: 5px; border-radius: 50%; background: currentColor; opacity: 0.7; }
-@container (max-width: 150px) { .col__cap .tuda-icon { display: none; } .col__cap > span { font-size: var(--font-size-xs); } }
+@container (max-width: 172px) { .col__cap { gap: 5px; padding: 0 10px 0 9px; font-size: var(--font-size-xs); } .col__cap .tuda-icon { width: 14px; height: 14px; } }
+@container (max-width: 152px) { .col__capw { padding: 0 2px; } .col__cap { gap: 4px; padding: 0 8px; font-size: var(--font-size-2xs); } .col__cap .tuda-icon { width: 13px; height: 13px; } }
 .col__nicon { display: inline-flex; align-self: center; color: var(--text-tertiary); }
 .col__nicon .tuda-icon { width: 13px; height: 13px; }
-/* Praktika und Jobs gehören nicht zur Uni: grau, mit kräftigem Rand links */
-.ext { --_rim: inset 0 0 0 1px var(--edge), inset 4px 0 0 color-mix(in srgb, var(--ink) 80%, transparent); padding-left: 15px; }
+/* Praktika und Jobs gehören nicht zur Uni: grau und matt, mit feiner, festerer Kontur statt Glanz */
+.ext { background: var(--tint); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 46%, transparent); }
+.ext:hover, .ext.is-hover { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 66%, transparent), 0 2px 8px color-mix(in srgb, var(--ink) 14%, transparent); }
 .job { position: relative; margin: 0 4px 8px; z-index: 1; }
-.job.is-moving, .job.is-resizing { z-index: 2; --_lift: 0 6px 18px color-mix(in srgb, var(--ink) 28%, transparent); }
+.job.is-moving, .job.is-resizing { z-index: 2; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 66%, transparent), 0 8px 20px color-mix(in srgb, var(--ink) 24%, transparent); }
 .job__warn { color: var(--warning-fg); }
 .job__grip { position: absolute; top: 4px; bottom: 4px; width: 12px; cursor: ew-resize; touch-action: none; }
 .job__grip--start { left: 0; }
@@ -1736,7 +1744,6 @@ body.is-resizing-job, body.is-resizing-job * { cursor: ew-resize !important; }
 .intern__tag { display: inline-flex; align-items: center; gap: 3px; }
 .intern__tag .tuda-icon { width: 12px; height: 12px; }
 .col.drop-no { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--warning-fg) 55%, transparent); }
-.col.kind-leave { background-image: repeating-linear-gradient(135deg, color-mix(in srgb, var(--text-primary) 5%, transparent) 0 5px, transparent 5px 12px); }
 .col.kind-leave .col__num { color: var(--text-tertiary); }
 .col-pop { width: 304px; max-height: calc(100vh - 16px); max-height: calc(100dvh - 16px); overflow-y: auto; overscroll-behavior: contain; }
 .col-pop__t { font-size: var(--font-size-sm); line-height: 18px; color: var(--text-secondary); }
@@ -1982,7 +1989,6 @@ span.tuda-calendar__day:hover { background: transparent; }
   .plan-main { padding-top: var(--space-2); }
   .col__hd { padding: 6px 8px 8px 10px; }
   .col__meter { margin-top: 6px; }
-  .col__cap { height: 28px; }
   .col__list { gap: 6px; }
   .mod { gap: 3px; padding-top: 7px; padding-bottom: 8px; }
   .slot { padding-top: 6px; padding-bottom: 7px; }
@@ -2035,7 +2041,7 @@ span.tuda-calendar__day:hover { background: transparent; }
 @keyframes plan-fade { from { opacity: 0; transform: scale(0.985); } to { opacity: 1; transform: none; } }
 @keyframes plan-meter { from { width: 0; } }
 @media (prefers-reduced-motion: no-preference) {
-  .board.is-entering .col, .board.is-entering .col__cap, .board.is-entering .job { animation: plan-rise 0.55s var(--ease-enter) both; animation-delay: calc(var(--i, 0) * 55ms - var(--enter-t, 0ms)); }
+  .board.is-entering .col, .board.is-entering .job { animation: plan-rise 0.55s var(--ease-enter) both; animation-delay: calc(var(--i, 0) * 55ms - var(--enter-t, 0ms)); }
   .board.is-entering .col__meter i { animation: plan-meter 0.9s var(--ease-standard) both; animation-delay: calc(var(--i, 0) * 55ms + 250ms - var(--enter-t, 0ms)); }
   .board.is-switching .mod > *, .board.is-switching .slot > * { animation: plan-content 0.38s var(--ease-enter) both; }
 }
@@ -3647,12 +3653,12 @@ function internHTML(it){
       : '<span class="mod__meta"><span class="intern__tag">'+ic('building')+'Praktikum</span>'+(w ? '<span>'+w+' Wo.</span>' : '')+'</span>')+'</div>';
 }
 /* FLIP: Positionen vor dem Neuzeichnen merken, danach jede Kachel von dort an ihren neuen Platz gleiten lassen */
-/* Kappe über einer Urlaubs- oder Auslandsspalte: der Name gilt für die ganze Spalte */
+/* Pille auf der oberen Rahmenkante einer Urlaubs- oder Auslandsspalte */
 function capHTML(s){
   const kind = semKind(s), K = SEM_KINDS[kind], note = semNote(s), warn = kind==='leave' && state.items.some(i=>i.sem===s && i.type!=='intern');
   const tip = K.long+(note ? ': '+note : '')+(warn ? '. '+LEAVE_BLOCK+' Verschieb die Module in ein anderes Semester.' : '');
-  return '<button type="button" class="col__cap k-'+kind+(warn ? ' is-warn' : '')+'" style="grid-column:'+s+';--i:'+(s-1)+'" data-act="sem-set" data-s="'+s+'" aria-haspopup="dialog" aria-expanded="false" aria-controls="col-pop" title="'+esc(tip)+'" aria-label="'+esc(s+'. Semester: '+tip+'. Semester einstellen')+'">'+
-    ic(warn ? 'alert-triangle' : K.icon)+'<span>'+esc(K.long)+'</span>'+(note ? '<i class="col__dot" aria-hidden="true"></i>' : '')+'</button>';
+  return '<div class="col__capw k-'+kind+(warn ? ' is-warn' : '')+'"><button type="button" class="col__cap" data-act="sem-set" data-s="'+s+'" aria-haspopup="dialog" aria-expanded="false" aria-controls="col-pop" title="'+esc(tip)+'" aria-label="'+esc(s+'. Semester: '+tip+'. Semester einstellen')+'">'+
+    ic(warn ? 'alert-triangle' : K.icon)+'<span>'+esc(K.long)+'</span></button></div>';
 }
 /* Jobs liegen oben in den Spalten; was sich zeitlich nicht überschneidet, teilt sich eine Zeile */
 function jobLanes(){
@@ -3695,19 +3701,18 @@ function renderBoard(){
   let h = '';
   for (let s=1; s<=N; s++){
     const t = termOf(s), now = s===state.current, cp = semCP(s), high = cp>36, L = semLoad(s), warnCP = high || L.heavy;
-    const kind = semKind(s), K = SEM_KINDS[kind], note = semNote(s), items = colItems(s);
+    const kind = semKind(s), K = SEM_KINDS[kind], note = semNote(s), items = colItems(s), capped = caps && kind!=='study', hdRow = capped ? 2 : 1;
     const cpTip = high ? 'Mehr als 36 CP in einem Semester' : L.heavy ? cp+' CP und '+L.jh+' h Job sind zusammen etwa '+L.total+' Stunden pro Woche. Daneben sind etwa '+L.rec+' CP realistisch.' : L.jh ? 'Mit '+L.jh+' h Job etwa '+L.total+' Stunden pro Woche' : '';
     h += '<section class="col'+(now?' is-current':'')+(kind!=='study'?' kind-'+kind:'')+'" data-sem="'+s+'" style="grid-column:'+s+';--i:'+(s-1)+'" aria-label="'+esc(s+'. Semester, '+t.label+(kind!=='study'?', '+K.long:'')+', '+cp+' CP'+(now?', aktuelles Semester':''))+'">'+
-      '<div class="col__hdw"><header class="col__hd"><button type="button" class="col__set" data-act="sem-set" data-s="'+s+'" aria-haspopup="dialog" aria-expanded="false" aria-controls="col-pop" title="'+esc(t.label+(kind!=='study' ? ' · '+K.long : '')+(note ? ' · Notiz: '+note : '')+' · Semester einstellen')+'"><span class="col__num" aria-hidden="true">'+s+'</span><span class="col__term">'+t.tiny+'</span>'+(note && kind==='study' ? '<span class="col__nicon" aria-hidden="true">'+ic('edit')+'</span>' : '')+'<span class="tuda-sr-only">, '+esc(s+'. Semester einstellen')+'</span></button>'+
+      (capped ? capHTML(s) : '')+'<div class="col__hdw" style="grid-row:'+hdRow+'"><header class="col__hd"><button type="button" class="col__set" data-act="sem-set" data-s="'+s+'" aria-haspopup="dialog" aria-expanded="false" aria-controls="col-pop" title="'+esc(t.label+(kind!=='study' ? ' · '+K.long : '')+(note ? ' · Notiz: '+note : '')+' · Semester einstellen')+'"><span class="col__num" aria-hidden="true">'+s+'</span><span class="col__term">'+t.tiny+'</span>'+(note ? '<span class="col__nicon" aria-hidden="true">'+ic('edit')+'</span>' : '')+'<span class="tuda-sr-only">, '+esc(s+'. Semester einstellen')+'</span></button>'+
       '<span class="col__cp'+(warnCP?' is-high':'')+'"'+(cpTip?' title="'+esc(cpTip)+'"':'')+'>'+(warnCP?ic('alert-triangle'):'')+cp+' CP</span>'+
       (s===N && N>6 ? '<button type="button" class="tuda-btn tuda-btn--ghost tuda-btn--neutral tuda-btn--icon tuda-btn--sm col__rm" data-act="rm-sem" aria-label="Semester '+s+' entfernen" title="Semester '+s+' entfernen">'+ic('x')+'</button>' : '')+
       '<span class="col__meter'+(warnCP?' is-high':'')+'" aria-hidden="true"><i style="width:'+Math.min(100, cp/30*100)+'%"></i></span></header></div>'+
-      '<div class="col__list" data-sem="'+s+'" style="grid-row:'+(2 + depth[s])+' / -1">';
+      '<div class="col__list" data-sem="'+s+'" style="grid-row:'+(hdRow + 1 + depth[s])+' / -1">';
     for (const it of items) h += it.type==='slot' ? slotHTML(it) : it.type==='intern' ? internHTML(it) : modHTML(it);
     if (kind==='leave') h += '<button type="button" class="col__add" data-act="add-intern" data-s="'+s+'">'+ic('plus')+'Praktikum</button>';
     h += '</div></section>';
   }
-  for (let s=1; s<=N; s++) if (semKind(s)!=='study') h += capHTML(s);
   for (const {j, lane} of JL.at) h += jobHTML(j, head + lane);
   h += '<button type="button" class="addcol" style="grid-column:'+(N+1)+'" data-act="add-sem" aria-label="Semester '+(N+1)+' hinzufügen" title="Semester '+(N+1)+' hinzufügen">'+ic('plus')+'<span>Semester '+(N+1)+'</span></button>';
   if (entering) board.style.setProperty('--enter-t', Math.round(performance.now() - enterAt)+'ms');
