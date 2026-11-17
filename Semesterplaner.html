@@ -1680,20 +1680,32 @@ body { background: var(--surface-page); color: var(--text-primary); }
 .col__set:hover, .col__set[aria-expanded="true"] { background: var(--state-hover); }
 .col__set:focus-visible { outline: var(--border-width-thick) solid var(--focus-ring); outline-offset: 1px; }
 @container (max-width: 168px) { .col .col__set { gap: 4px; margin-left: -4px; padding-inline: 4px; } }
-.col__kind { grid-column: 1 / -1; display: flex; align-items: center; gap: 5px; min-width: 0; margin-top: 4px; font-size: var(--font-size-xs); line-height: 16px; font-weight: var(--font-weight-semibold); color: var(--text-secondary); }
-.col__kind > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.col__kind .tuda-icon { flex: none; width: 13px; height: 13px; }
-.col__kind.is-warn { color: var(--warning-fg); }
-.col.kind-intern .col__kind, .col.kind-abroad .col__kind { color: var(--on-primary-subtle); }
+.col__kicon { display: inline-flex; align-self: center; color: var(--text-secondary); }
+.col__kicon .tuda-icon { width: 14px; height: 14px; }
+/* Art und Notiz des Semesters: vollständig in einem Kasten oben in der Spalte */
+.col__note { display: flex; gap: 7px; margin: 0 4px 8px; padding: 8px 10px; border-radius: var(--radius-md); background: var(--surface); box-shadow: inset 0 0 0 1px var(--border-subtle); font-size: var(--font-size-xs); line-height: 16px; color: var(--text-secondary); }
+.col__note > .tuda-icon { flex: none; width: 14px; height: 14px; margin-top: 1px; }
+.col__note p { min-width: 0; }
+.col__note strong { display: block; font-weight: var(--font-weight-semibold); color: var(--text-primary); }
+.col__note span { display: block; overflow-wrap: anywhere; }
+.col__note.is-warn, .col__note.is-warn strong { color: var(--warning-fg); }
+.col.kind-abroad .col__note > .tuda-icon { color: var(--on-primary-subtle); }
+/* „+ Praktikum“ im Urlaubssemester */
+.col__add { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 40px; padding: 0 var(--space-3); border: 1.5px dashed color-mix(in srgb, var(--text-tertiary) 55%, transparent); border-radius: var(--card-r); background: transparent; color: var(--text-secondary); font: inherit; font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); cursor: pointer; transition: background-color var(--duration-fast), color var(--duration-fast); }
+.col__add:hover { background: var(--state-hover); color: var(--text-primary); }
+.col__add:focus-visible { outline: var(--border-width-thick) solid var(--focus-ring); outline-offset: 1px; }
+.col__add .tuda-icon { width: 15px; height: 15px; }
+.intern__tag { display: inline-flex; align-items: center; gap: 3px; }
+.intern__tag .tuda-icon { width: 12px; height: 12px; }
+.col.drop-no { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--warning-fg) 55%, transparent); }
 .col.kind-leave { background-image: repeating-linear-gradient(135deg, color-mix(in srgb, var(--text-primary) 5%, transparent) 0 5px, transparent 5px 12px); }
 .col.kind-leave .col__num { color: var(--text-tertiary); }
-.col__hint { display: flex; align-items: center; justify-content: center; gap: 6px; margin: var(--space-3) 0; font-size: var(--font-size-xs); line-height: 16px; font-weight: var(--font-weight-medium); color: var(--text-tertiary); }
-.col__hint .tuda-icon { width: 14px; height: 14px; }
 .col-pop { width: 304px; }
 .col-pop__t { font-size: var(--font-size-sm); line-height: 18px; color: var(--text-secondary); }
 .col-pop__t strong { font-weight: var(--font-weight-semibold); color: var(--text-primary); }
 .col-pop .tuda-input { min-height: 38px; font-size: var(--font-size-md); }
-.col-pop__kinds { display: grid; grid-template-columns: 1fr 1fr; width: 100%; border-radius: var(--radius-md); }
+.col-pop__kinds { display: grid; grid-template-columns: repeat(3, 1fr); width: 100%; border-radius: var(--radius-md); }
+.col-pop__add { justify-self: start; }
 .col-pop__kinds .tuda-segmented__item > span { min-height: 34px; padding: 0 var(--space-2); border-radius: calc(var(--radius-md) - 2px); font-size: var(--font-size-sm); }
 .col-pop__hint { display: flex; gap: 6px; font-size: var(--font-size-xs); line-height: 16px; color: var(--text-secondary); }
 .col-pop__hint.sev-warn { color: var(--warning-fg); }
@@ -3070,9 +3082,9 @@ function rangeLabel(A){ return A.min===A.max ? String(A.max) : A.min+'–'+A.max
 function semList(items){ const u = [...new Set(items.map(i=>i.sem))].sort((a,b)=>a-b).map(s=>s+'.'); return u.length>1 ? u.slice(0,-1).join(', ')+' und '+u[u.length-1] : (u[0]||''); }
 function selectHTML(id, act, options, cur, label){
   return '<div class="tuda-select-wrap"><select class="tuda-select"'+(id?' id="'+id+'"':'')+(act?' data-act="'+act+'"':'')+(label?' aria-label="'+esc(label)+'"':'')+'>'+
-    options.map(o=>'<option value="'+esc(o.value)+'"'+(String(o.value)===String(cur)?' selected':'')+'>'+esc(o.label)+'</option>').join('')+'</select>'+ic('chevron-down')+'</div>';
+    options.map(o=>'<option value="'+esc(o.value)+'"'+(String(o.value)===String(cur)?' selected':'')+(o.disabled?' disabled':'')+'>'+esc(o.label)+'</option>').join('')+'</select>'+ic('chevron-down')+'</div>';
 }
-function semOptions(){ return Array.from({length:state.semCount}, (_,i)=>({value:i+1, label:(i+1)+'. Semester · '+termOf(i+1).short+(semKind(i+1)!=='study' ? ' · '+SEM_KINDS[semKind(i+1)].long : '')})); }
+function semOptions(forMods){ return Array.from({length:state.semCount}, (_,i)=>({value:i+1, label:(i+1)+'. Semester · '+termOf(i+1).short+(semKind(i+1)!=='study' ? ' · '+SEM_KINDS[semKind(i+1)].long : ''), disabled: !!forMods && semKind(i+1)==='leave'})); }
 
 /* ---------- Bewegung: kleine Übergänge bei Interaktionen, aus bei „Bewegung reduzieren“ ---------- */
 const reduceMotion = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : {matches:false};
@@ -3135,11 +3147,11 @@ const SEV_ICON = {ok:'check-circle', warn:'alert-triangle', bad:'alert-octagon'}
 /* ---------- Semesterart: Studium (Standard), Urlaub, Praktikum, Ausland ---------- */
 const SEM_KINDS = {
   study:  {label:'Studium', long:'Studiensemester', icon:'book'},
-  leave:  {label:'Urlaub', long:'Urlaubssemester', icon:'sun', hint:'Zählt nicht als Fachsemester. Ob du währenddessen Prüfungen ablegen darfst, klärst du mit dem Studienbüro.'},
-  intern: {label:'Praktikum', long:'Praktikum', icon:'building', hint:'Plane hier nur, was neben dem Praktikum machbar ist. Für ein Vollzeitpraktikum kannst du dich auch beurlauben lassen, dann wähle Urlaub.'},
+  leave:  {label:'Urlaub', long:'Urlaubssemester', icon:'sun', hint:'Zählt nicht als Fachsemester. Module planst du hier keine, ein Praktikum schon. Ob du währenddessen Prüfungen ablegen darfst, klärst du mit dem Studienbüro.'},
   abroad: {label:'Ausland', long:'Auslandssemester', icon:'globe', hint:'Kurse im Ausland trägst du als eigene Module ein. Die Anerkennung beantragst du nach der Rückkehr.'}
 };
-const SEM_KIND_KEYS = ['study','leave','intern','abroad'];
+const SEM_KIND_KEYS = ['study','leave','abroad'];
+const LEAVE_BLOCK = 'Im Urlaubssemester planst du keine Module, nur Praktika.';
 
 /* ---------- Zustand & Speichern ---------- */
 const LS_KEY = 'winf-semesterplaner-v1';
@@ -3193,10 +3205,18 @@ function sanitize(s){
   const ids = new Set(), refs = new Set(), blocks = [];
   const add = it => { if (!it.id || ids.has(it.id)) it.id = uid(); ids.add(it.id); out.items.push(it); };
   const known = ref => !!(MODULES[ref] || CAT_DEF[ref] || out.custom[ref]);
+  // Stand 14: Praktikum war eine Semesterart. Daraus wird eine Praktikumskarte im selben Semester, die Notiz wird ihr Titel.
+  if (s.semInfo && typeof s.semInfo==='object') for (const k in s.semInfo){
+    const v = s.semInfo[k], n = Math.round(+k);
+    if (!v || v.kind!=='intern' || !(n>=1 && n<=N)) continue;
+    add({id:'', ref:'intern', type:'intern', sem:n, row:0, title: String(v.note||'').trim().slice(0, 60) || 'Praktikum'});
+    delete out.semInfo[n];
+  }
   for (const it of s.items){
     if (!it || typeof it.ref!=='string') continue;
     if (it.type==='block'){ if (OLD_BLOCK[it.ref]) blocks.push(it); continue; }
     const row = isFinite(+it.row) ? +it.row : 999;
+    if (it.type==='intern'){ const w = Math.round(+it.weeks); add(Object.assign({id:String(it.id||''), ref:'intern', type:'intern', sem:semOk(it.sem), row, title: String(it.title||'').trim().slice(0, 60) || 'Praktikum'}, w>=1 && w<=52 ? {weeks:w} : {})); continue; }
     if (it.type==='slot'){ if (AREAS[it.ref]) add({id:String(it.id||''), ref:it.ref, type:'slot', sem:semOk(it.sem), row}); continue; }
     if (!known(it.ref) || refs.has(it.ref)) continue;
     refs.add(it.ref);
@@ -3350,6 +3370,7 @@ function placeAt(it, sem, idx){
 function moveItem(id, sem, idx){
   const it = findItem(id); if (!it) return false;
   sem = Math.max(1, Math.min(state.semCount, sem));
+  if (it.type!=='intern' && semKind(sem)==='leave') return false;   // im Urlaubssemester nur Praktika
   if (it.sem===sem && (idx==null || colItems(sem).indexOf(it)===idx)) return false;
   placeAt(it, sem, idx);
   return true;
@@ -3367,6 +3388,7 @@ function takeSlot(a, sem){
 }
 function placePick(ref, sem, idx, slotId){
   const def = defOf(ref); if (!def) return null;
+  if (!slotId && sem!=null && semKind(sem)==='leave') return null;
   const a = areaOf(ref), existing = itemOfRef(ref);
   let slot = slotId ? findItem(slotId) : null;
   if (slot && slot.type!=='slot') slot = null;
@@ -3405,6 +3427,7 @@ function setSemInfo(s, patch){
   if (kind==='study' && !note) delete state.semInfo[s]; else state.semInfo[s] = {kind, note};
 }
 function leaveCount(){ let n = 0; for (let s=1; s<=state.semCount; s++) if (semKind(s)==='leave') n++; return n; }
+function internsIn(s){ return state.items.filter(i=>i.type==='intern' && (s==null || i.sem===s)); }
 /* Leeres Semester an Stelle at einfügen: alles ab dort rückt ein Semester nach hinten */
 function insertSemester(at){
   if (state.semCount >= 16 || !(at>=1 && at<=state.semCount+1)) return false;
@@ -3479,7 +3502,8 @@ function renderTop(){
     '<div class="totals"><strong>'+(t.plan+t.open)+'</strong> / 180 CP verplant'+(t.open ? ', davon '+t.open+' CP Platzhalter' : '')+' · <strong>'+t.passed+'</strong> CP bestanden'+
     (lastTry ? ' · <span class="sev-bad">'+lastTry+(lastTry===1?' Modul':' Module')+' im letzten Versuch</span>' : '')+
     (finals ? ' · <span class="sev-bad">'+finals+' endgültig nicht bestanden</span>' : '')+
-    (leaveCount() ? ' · <strong>'+(state.semCount - leaveCount())+'</strong> Fachsemester, '+leaveCount()+' Urlaubssemester' : '')+'</div>';
+    (leaveCount() ? ' · <strong>'+(state.semCount - leaveCount())+'</strong> Fachsemester, '+leaveCount()+' Urlaubssemester' : '')+
+    (internsIn().length ? ' · '+internsIn().length+(internsIn().length===1 ? ' Praktikum' : ' Praktika') : '')+'</div>';
 }
 
 /* ---------- Semesterspalten ---------- */
@@ -3543,6 +3567,15 @@ function slotHTML(it){
     (ui.view==='detail' ? '<span class="slot__hint">Modul aus dem Katalog hierher ziehen oder klicken</span>' : '')+
     '<button type="button" class="slot__x" data-act="rm-slot" data-id="'+esc(it.id)+'" aria-label="Platzhalter entfernen" title="Platzhalter entfernen">'+ic('x')+'</button></div>';
 }
+/* Praktikum: eigene Karte ohne CP, darf als einzige Karte ins Urlaubssemester */
+function internHTML(it){
+  const w = +it.weeks > 0 ? +it.weeks : 0, wTxt = w ? w+(w===1 ? ' Woche' : ' Wochen') : '';
+  return '<div class="tuda-tile '+catTile('extra')+' mod intern" data-drag="item" data-id="'+esc(it.id)+'" tabindex="0" role="button" aria-label="'+esc('Praktikum: '+it.title+(wTxt ? ', '+wTxt : ''))+'" title="'+esc(it.title+' · Praktikum')+'" style="'+catStyle('extra')+'">'+
+    (ui.view==='detail' ? '<span class="mod__kicker">Praktikum · keine CP</span>' : '')+
+    '<span class="mod__title">'+esc(it.title)+'</span>'+
+    (ui.view==='detail' ? (w ? '<span class="mod__line">'+ic('clock')+'<span>'+esc(wTxt)+'</span></span>' : '')
+      : '<span class="mod__meta"><span class="intern__tag">'+ic('building')+'Praktikum</span>'+(w ? '<span>'+w+' Wo.</span>' : '')+'</span>')+'</div>';
+}
 /* FLIP: Positionen vor dem Neuzeichnen merken, danach jede Kachel von dort an ihren neuen Platz gleiten lassen */
 let flipFrom = null;   // {id, rect}: z. B. Ablageort einer gezogenen Kachel
 function renderBoard(){
@@ -3560,16 +3593,16 @@ function renderBoard(){
   let h = '';
   for (let s=1; s<=N; s++){
     const t = termOf(s), now = s===state.current, cp = semCP(s), high = cp>36;
-    const kind = semKind(s), K = SEM_KINDS[kind], note = semNote(s), items = colItems(s), warn = kind==='leave' && items.some(i=>i.type==='mod');
+    const kind = semKind(s), K = SEM_KINDS[kind], note = semNote(s), items = colItems(s), warn = kind==='leave' && items.some(i=>i.type!=='intern');
+    const noteBox = kind!=='study' || note || warn ? '<div class="col__note'+(warn ? ' is-warn' : '')+'">'+ic(warn ? 'alert-triangle' : kind==='study' ? 'info' : K.icon)+'<p><strong>'+esc(kind==='study' ? 'Notiz' : K.long)+'</strong>'+(note ? '<span>'+esc(note)+'</span>' : '')+(warn ? '<span>'+esc(LEAVE_BLOCK)+' Verschieb die Module in ein anderes Semester.</span>' : '')+'</p></div>' : '';
     h += '<section class="col'+(now?' is-current':'')+(kind!=='study'?' kind-'+kind:'')+'" data-sem="'+s+'" style="--i:'+(s-1)+'" aria-label="'+esc(s+'. Semester, '+t.label+(kind!=='study'?', '+K.long:'')+', '+cp+' CP'+(now?', aktuelles Semester':''))+'">'+
-      '<header class="col__hd"><button type="button" class="col__set" data-act="sem-set" data-s="'+s+'" aria-haspopup="dialog" aria-expanded="false" aria-controls="col-pop" title="'+esc(t.label+' · Semester einstellen')+'"><span class="col__num" aria-hidden="true">'+s+'</span><span class="col__term">'+t.tiny+'</span><span class="tuda-sr-only">, '+esc(s+'. Semester einstellen')+'</span></button>'+
+      '<header class="col__hd"><button type="button" class="col__set" data-act="sem-set" data-s="'+s+'" aria-haspopup="dialog" aria-expanded="false" aria-controls="col-pop" title="'+esc(t.label+(kind!=='study' ? ' · '+K.long : '')+' · Semester einstellen')+'"><span class="col__num" aria-hidden="true">'+s+'</span><span class="col__term">'+t.tiny+'</span>'+(kind!=='study' ? '<span class="col__kicon" aria-hidden="true">'+ic(K.icon)+'</span>' : '')+'<span class="tuda-sr-only">, '+esc(s+'. Semester einstellen')+'</span></button>'+
       '<span class="col__cp'+(high?' is-high':'')+'"'+(high?' title="Mehr als 36 CP in einem Semester"':'')+'>'+(high?ic('alert-triangle'):'')+cp+' CP</span>'+
       (s===N && N>6 ? '<button type="button" class="tuda-btn tuda-btn--ghost tuda-btn--neutral tuda-btn--icon tuda-btn--sm col__rm" data-act="rm-sem" aria-label="Semester '+s+' entfernen" title="Semester '+s+' entfernen">'+ic('x')+'</button>' : '')+
-      (kind!=='study' || note ? '<span class="col__kind'+(warn?' is-warn':'')+'" title="'+esc((warn ? 'Im Urlaubssemester liegen Module. ' : '')+K.long+(note ? ': '+note : ''))+'">'+ic(warn ? 'alert-triangle' : kind==='study' ? 'info' : K.icon)+'<span>'+esc(kind==='study' ? note : K.long+(note ? ' · '+note : ''))+'</span></span>' : '')+
-      '<span class="col__meter'+(high?' is-high':'')+'" aria-hidden="true"><i style="width:'+Math.min(100, cp/30*100)+'%"></i></span></header>'+
+      '<span class="col__meter'+(high?' is-high':'')+'" aria-hidden="true"><i style="width:'+Math.min(100, cp/30*100)+'%"></i></span></header>'+noteBox+
       '<div class="col__list" data-sem="'+s+'">';
-    for (const it of items) h += it.type==='slot' ? slotHTML(it) : modHTML(it);
-    if (kind==='leave' && !items.length) h += '<p class="col__hint">'+ic('sun')+'Keine Module</p>';
+    for (const it of items) h += it.type==='slot' ? slotHTML(it) : it.type==='intern' ? internHTML(it) : modHTML(it);
+    if (kind==='leave') h += '<button type="button" class="col__add" data-act="add-intern" data-s="'+s+'">'+ic('plus')+'Praktikum</button>';
     h += '</div></section>';
   }
   h += '<button type="button" class="addcol" data-act="add-sem" aria-label="Semester '+(N+1)+' hinzufügen" title="Semester '+(N+1)+' hinzufügen">'+ic('plus')+'<span>Semester '+(N+1)+'</span></button>';
@@ -3718,7 +3751,7 @@ function renderExams(){
   const mods = modsInSem(s), kind = semKind(s), note = semNote(s);
   if (kind==='leave' && !mods.length){
     $('#ex-sub').textContent = t.short+' · Urlaubssemester';
-    box.innerHTML = '<div class="tuda-card tuda-empty">'+ILL_FIRST+'<h3 class="tuda-empty__title">Urlaubssemester'+esc(note ? ': '+note : '')+'</h3><p class="tuda-empty__text">In diesem Semester sind keine Module und keine Klausuren geplant.</p></div>';
+    box.innerHTML = '<div class="tuda-card tuda-empty">'+ILL_FIRST+'<h3 class="tuda-empty__title">Urlaubssemester'+esc(note ? ': '+note : '')+'</h3><p class="tuda-empty__text">'+esc(internsIn(s).length ? 'Geplant: '+internsIn(s).map(i=>i.title+(i.weeks ? ' ('+i.weeks+' Wochen)' : '')).join(', ')+'. Klausuren gibt es in diesem Semester keine.' : 'In diesem Semester sind keine Module und keine Klausuren geplant.')+'</p></div>';
     afterExams(); return;
   }
   const entries = [], without = [];
@@ -3915,7 +3948,7 @@ function renderDetail(){
     if (!def){ closeDetail(); return; }
     const a = areaOf(it.ref), custom = !!state.custom[it.ref]; cat = def.cat || 'extra';
     kicker = (a ? AREAS[a].name : CATS[cat].short)+' · '+def.cp+' CP'; title = def.name;
-    body += '<dl class="tuda-dl">'+(def.nr?'<dt>Modulnummer</dt><dd>'+esc(def.nr)+'</dd>':'')+(def.group?'<dt>Bereich</dt><dd>'+esc(def.group)+'</dd>':'')+'<dt>Angebot</dt><dd>'+turnusLabel(def.turnus)+'</dd><dt>Geplant im</dt><dd>'+selectHTML('', 'move-item', semOptions(), it.sem, 'Semester')+'</dd></dl>';
+    body += '<dl class="tuda-dl">'+(def.nr?'<dt>Modulnummer</dt><dd>'+esc(def.nr)+'</dd>':'')+(def.group?'<dt>Bereich</dt><dd>'+esc(def.group)+'</dd>':'')+'<dt>Angebot</dt><dd>'+turnusLabel(def.turnus)+'</dd><dt>Geplant im</dt><dd>'+selectHTML('', 'move-item', semOptions(true), it.sem, 'Semester')+'</dd></dl>';
     if (turnusWarn(def, it.sem)) body += '<div class="tuda-alert tuda-alert--warning">'+ic('alert-triangle')+'<div class="tuda-alert__content"><p class="tuda-alert__title">Angebot im '+turnusLabel(def.turnus)+'</p><p class="tuda-alert__text">Du hast das Modul im '+termOf(it.sem).label+' eingeplant. Prüfungen gibt es oft in beiden Semestern, siehe Termine unten.</p></div></div>';
     body += statusCtl(it.ref);
     if (def.sub) body += '<p>'+esc(def.sub)+'</p>';
@@ -3929,19 +3962,30 @@ function renderDetail(){
     const def = defOf(c.ref); if (!def){ closeDetail(); return; }
     const a = areaOf(c.ref); cat = def.cat || 'extra';
     kicker = (a ? AREAS[a].name : CATS[cat].short)+' · '+def.cp+' CP'; title = def.name;
-    body += '<dl class="tuda-dl">'+(def.nr?'<dt>Modulnummer</dt><dd>'+esc(def.nr)+'</dd>':'')+(def.group?'<dt>Bereich</dt><dd>'+esc(def.group)+'</dd>':'')+'<dt>Angebot</dt><dd>'+turnusLabel(def.turnus)+'</dd><dt>Einplanen im</dt><dd>'+selectHTML('pick-sem', '', semOptions(), ui.pickSem||state.current, 'Semester')+'</dd></dl>';
+    body += '<dl class="tuda-dl">'+(def.nr?'<dt>Modulnummer</dt><dd>'+esc(def.nr)+'</dd>':'')+(def.group?'<dt>Bereich</dt><dd>'+esc(def.group)+'</dd>':'')+'<dt>Angebot</dt><dd>'+turnusLabel(def.turnus)+'</dd><dt>Einplanen im</dt><dd>'+selectHTML('pick-sem', '', semOptions(true), ui.pickSem||state.current, 'Semester')+'</dd></dl>';
     if (def.note && !def.noExam) body += '<p>'+esc(def.note)+'</p>';
     body += '<section><h3 class="tuda-text-label">Klausurtermine laut Prüfungsplan</h3>'+examListHTML(def, null)+'</section>';
     if (state.custom[c.ref]) body += customEditHTML(c.ref, false);
     foot = (state.custom[c.ref] ? '<button type="button" class="tuda-btn tuda-btn--danger" data-act="del-custom" data-ref="'+esc(c.ref)+'">'+ic('trash')+'Eintrag löschen</button>' : '')+
       '<button type="button" class="tuda-btn tuda-btn--secondary" data-tuda-close>Abbrechen</button><button type="button" class="tuda-btn tuda-btn--primary" data-act="pick-now" data-ref="'+esc(c.ref)+'">'+ic('plus')+'Einplanen</button>';
+  } else if (c.type==='intern'){
+    const it = findItem(c.id); if (!it || it.type!=='intern'){ closeDetail(); return; }
+    kicker = 'Praktikum · keine CP'; title = it.title;
+    body += '<form class="tuda-stack" data-intern="'+esc(it.id)+'" autocomplete="off">'+
+      '<div class="tuda-field"><label class="tuda-label" for="in-title">Bezeichnung</label><input class="tuda-input" id="in-title" name="title" required maxlength="60" value="'+esc(it.title)+'" placeholder="z. B. Praktikum bei SAP"></div>'+
+      '<div class="cat-form__row"><div class="tuda-field"><label class="tuda-label" for="in-sem">Semester</label>'+selectHTML('in-sem', 'move-item', semOptions(), it.sem, 'Semester')+'</div>'+
+      '<div class="tuda-field"><label class="tuda-label" for="in-weeks">Wochen</label><input class="tuda-input" id="in-weeks" name="weeks" type="number" inputmode="numeric" min="1" max="52" value="'+esc(it.weeks||'')+'"></div></div>'+
+      '<div><button type="submit" class="tuda-btn tuda-btn--secondary">Speichern</button></div></form>'+
+      '<p class="tuda-hint">Praktika zählen nicht zu den 180 CP. Ins Urlaubssemester darfst du sie legen, Module dagegen nicht.</p>';
+    foot = '<button type="button" class="tuda-btn tuda-btn--danger" data-act="del-intern" data-id="'+esc(it.id)+'">'+ic('trash')+'Praktikum löschen</button>'+
+      '<button type="button" class="tuda-btn tuda-btn--secondary" data-tuda-close>Schließen</button>';
   } else if (c.type==='new'){
     kicker = 'Eigenes Modul'; title = 'Modul zum Plan hinzufügen';
     body += '<form id="new-form" class="tuda-stack" autocomplete="off">'+
       '<div class="tuda-field"><label class="tuda-label" for="nf-name">Modulname</label><p class="tuda-hint" id="nf-name-h">Zum Beispiel eine Wiederholung oder eine Zusatzleistung. Wahlmodule planst du über den Katalog.</p><input class="tuda-input" id="nf-name" aria-describedby="nf-name-h" required autofocus></div>'+
       '<div class="cat-form__row"><div class="tuda-field"><label class="tuda-label" for="nf-cat">Bereich</label>'+selectHTML('nf-cat', '', Object.keys(CATS).map(k=>({value:k, label:CATS[k].label})), 'extra')+'</div>'+
       '<div class="tuda-field"><label class="tuda-label" for="nf-cp">CP</label><input class="tuda-input" id="nf-cp" type="number" inputmode="numeric" min="0" max="30" required value="5"></div></div>'+
-      '<div class="tuda-field"><label class="tuda-label" for="nf-sem">Semester</label>'+selectHTML('nf-sem', '', semOptions(), state.current)+'</div>'+
+      '<div class="tuda-field"><label class="tuda-label" for="nf-sem">Semester</label>'+selectHTML('nf-sem', '', semOptions(true), state.current)+'</div>'+
       '<div class="tuda-field"><label class="tuda-label" for="nf-nr">Modulnummer <span class="tuda-label__optional">(optional)</span></label><input class="tuda-input" id="nf-nr" placeholder="für die Suche im Prüfungsplan"></div></form>';
     foot = '<button type="button" class="tuda-btn tuda-btn--secondary" data-tuda-close>Abbrechen</button><button type="submit" form="new-form" class="tuda-btn tuda-btn--primary">'+ic('plus')+'Modul hinzufügen</button>';
   }
@@ -4028,7 +4072,7 @@ function beginDrag(e){
   rafId = requestAnimationFrame(autoScroll);
 }
 function clearHover(keepLine){
-  document.querySelectorAll('.slot.hover,.col.drop-on,.addcol.hover,.catalog.drop-out').forEach(n=>n.classList.remove('hover','drop-on','drop-out'));
+  document.querySelectorAll('.slot.hover,.col.drop-on,.col.drop-no,.addcol.hover,.catalog.drop-out').forEach(n=>n.classList.remove('hover','drop-on','drop-no','drop-out'));
   if (!keepLine) hideLine();
 }
 function hideLine(){ const ln = $('#drop-line'); if (ln) ln.remove(); }
@@ -4067,6 +4111,7 @@ function moveDrag(x,y){
   }
   const col = hits.find(n=>n.classList && n.classList.contains('col'));
   if (!col){ hideLine(); d.target = null; return; }
+  if (semKind(+col.dataset.sem)==='leave' && !(d.kind==='item' && d.item && d.item.type==='intern')){ hideLine(); col.classList.add('drop-no'); d.target = {blocked:+col.dataset.sem}; return; }
   const list = col.querySelector('.col__list');
   const {idx, cards} = dropIndex(list, y, d.el);
   col.classList.add('drop-on');
@@ -4097,6 +4142,7 @@ function endDrag(){
   const d = drag, t = d.target, ghostRect = d.ghost ? d.ghost.getBoundingClientRect() : null;
   cleanupDrag();
   if (!t) return;
+  if (t.blocked){ toast(LEAVE_BLOCK, {text:'Zieh das Modul in ein anderes Semester.', tone:'warning'}); return; }
   if (d.kind==='item'){
     const it = findItem(d.id); if (!it) return;
     if (t.catalog){
@@ -4131,7 +4177,7 @@ function activate(el){
       if (window.innerWidth >= 1024){ const q = $('#cat-q'); if (q) q.focus({preventScroll:true}); }
       return;
     }
-    openDetail({type:'item', id:it.id}, el);
+    openDetail(it.type==='intern' ? {type:'intern', id:it.id} : {type:'item', id:it.id}, el);
   } else if (k==='cat'){
     const it = itemOfRef(el.dataset.ref);
     openDetail(it ? {type:'item', id:it.id} : {type:'cat', ref:el.dataset.ref}, el);
@@ -4163,16 +4209,18 @@ function placeColPop(){
 }
 function renderColPop(){
   const s = colPopSem, t = termOf(s), k = semKind(s), K = SEM_KINDS[k], N = state.semCount;
-  const mods = state.items.filter(i=>i.sem===s && i.type==='mod').length, empty = !state.items.some(i=>i.sem===s), warn = k==='leave' && mods;
-  const kinds = SEM_KIND_KEYS.map(v=>'<label class="tuda-segmented__item"><input type="radio" name="semkind" value="'+v+'" data-act="sem-kind" data-s="'+s+'"'+(v===k?' checked':'')+'><span>'+ic(SEM_KINDS[v].icon)+SEM_KINDS[v].label+'</span></label>').join('');
+  const mods = state.items.filter(i=>i.sem===s && i.type!=='intern').length, empty = !state.items.some(i=>i.sem===s), warn = k==='leave' && mods, noLeave = k!=='leave' && mods, interns = internsIn(s);
+  const kinds = SEM_KIND_KEYS.map(v=>'<label class="tuda-segmented__item"><input type="radio" name="semkind" value="'+v+'" data-act="sem-kind" data-s="'+s+'"'+(v===k?' checked':'')+(v==='leave' && noLeave ? ' disabled' : '')+'><span>'+ic(SEM_KINDS[v].icon)+SEM_KINDS[v].label+'</span></label>').join('');
   colPop.innerHTML = '<p class="col-pop__t" id="col-pop-t"><strong>'+s+'. Semester</strong> · '+esc(t.label)+'</p>'+
     '<div class="tuda-field"><span class="tuda-label" id="col-kind-l">Art des Semesters</span><div class="tuda-segmented col-pop__kinds" role="radiogroup" aria-labelledby="col-kind-l">'+kinds+'</div>'+
-      (K.hint ? '<p class="col-pop__hint'+(warn ? ' sev-warn' : '')+'">'+(warn ? ic('alert-triangle') : '')+'<span>'+esc(K.hint+(warn ? ' Hier liegen noch '+mods+(mods===1 ? ' Modul.' : ' Module.') : ''))+'</span></p>' : '')+'</div>'+
-    '<div class="tuda-field"><label class="tuda-label" for="col-note">Notiz <span class="tuda-label__optional">(optional)</span></label><input class="tuda-input" id="col-note" maxlength="60" autocomplete="off" data-act="sem-note" data-s="'+s+'" value="'+esc(semNote(s))+'" placeholder="'+(k==='intern' ? 'z. B. Praktikum bei SAP' : k==='abroad' ? 'z. B. Erasmus in Lund' : k==='leave' ? 'z. B. Auszeit, Reise' : 'z. B. Werkstudentenjob')+'"></div>'+
+      (K.hint || noLeave ? '<p class="col-pop__hint'+(warn ? ' sev-warn' : '')+'">'+(warn ? ic('alert-triangle') : '')+'<span>'+esc((K.hint ? K.hint+' ' : '')+(warn ? 'Hier liegen noch '+mods+(mods===1 ? ' Modul.' : ' Module.') : noLeave ? 'Urlaub geht nur in einem Semester ohne Module. Füg dafür unten ein leeres Semester davor ein.' : ''))+'</span></p>' : '')+'</div>'+
+    '<div class="tuda-field"><label class="tuda-label" for="col-note">Notiz <span class="tuda-label__optional">(optional)</span></label><input class="tuda-input" id="col-note" maxlength="60" autocomplete="off" data-act="sem-note" data-s="'+s+'" value="'+esc(semNote(s))+'" placeholder="'+(k==='abroad' ? 'z. B. Erasmus in Lund' : k==='leave' ? 'z. B. Auszeit, Reise' : 'z. B. Teilzeit')+'"></div>'+
+    '<div class="tuda-field"><span class="tuda-label">Praktikum</span><button type="button" class="tuda-btn tuda-btn--secondary tuda-btn--sm col-pop__add" data-act="add-intern" data-s="'+s+'">'+ic('plus')+'Praktikum einplanen</button>'+
+      (interns.length ? '<p class="col-pop__hint"><span>'+esc('Schon geplant: '+interns.map(i=>i.title).join(', '))+'</span></p>' : '')+'</div>'+
     '<div class="tuda-field"><span class="tuda-label">Leeres Semester einfügen</span><div class="col-pop__row">'+
       '<button type="button" class="tuda-btn tuda-btn--secondary tuda-btn--sm" data-act="sem-insert" data-at="'+s+'"'+(N>=16 ? ' disabled' : '')+'>'+ic('arrow-left')+'Davor</button>'+
       '<button type="button" class="tuda-btn tuda-btn--secondary tuda-btn--sm" data-act="sem-insert" data-at="'+(s+1)+'"'+(N>=16 ? ' disabled' : '')+'>Danach'+ic('arrow-right')+'</button></div>'+
-      '<p class="col-pop__hint"><span>Alles ab dort rückt ein Semester nach hinten. So planst du ein Urlaubssemester oder ein Praktikum ein, ohne Module einzeln zu verschieben.</span></p></div>'+
+      '<p class="col-pop__hint"><span>Alles ab dort rückt ein Semester nach hinten. So planst du ein Urlaubssemester ein, ohne Module einzeln zu verschieben.</span></p></div>'+
     (N>6 ? '<button type="button" class="tuda-btn tuda-btn--ghost tuda-btn--sm col-pop__rm" data-act="sem-remove" data-s="'+s+'"'+(empty ? '' : ' disabled title="Verschiebe zuerst die Module in andere Semester"')+'>'+ic('trash')+'Semester entfernen</button>' : '');
   syncSegments(colPop);
 }
@@ -4228,6 +4276,20 @@ document.addEventListener('click', e=>{
   switch (act){
     case 'add-sem': mutate(addSemester); toast('Semester '+state.semCount+' hinzugefügt'); setTimeout(()=>{ const w = $('#board-wrap'); w.scrollTo({left:w.scrollWidth, behavior:'smooth'}); }, 30); break;
     case 'rm-sem': removeLastSemester(); break;
+    case 'add-intern': {
+      const s = +a.dataset.s, it = {id:uid(), ref:'intern', type:'intern', sem:s, row:999, title:'Praktikum'};
+      const opener = colPopBtn() || a; closeColPop(false);
+      mutate(()=>{ state.items.push(it); normalize(); });
+      openDetail({type:'intern', id:it.id}, opener);
+      setTimeout(()=>{ const ti = $('#in-title'); if (ti){ ti.focus(); ti.select(); } }, 60);
+      break;
+    }
+    case 'del-intern': {
+      const id = a.dataset.id, n = (findItem(id)||{}).title || 'Praktikum';
+      closeDetail(); mutate(()=>{ state.items = state.items.filter(i=>i.id!==id); normalize(); });
+      toast(n+' gelöscht', {undo:true});
+      break;
+    }
     case 'sem-set': { const s = +a.dataset.s; if (!colPop.hidden && colPopSem===s) closeColPop(false); else openColPop(s); break; }
     case 'sem-insert': {
       const at = +a.dataset.at; if (state.semCount >= 16) break;
@@ -4258,7 +4320,7 @@ document.addEventListener('click', e=>{
       if (an){ el.dataset.leaving = '1'; an.onfinish = go; setTimeout(go, 320); } else go();
       break;
     }
-    case 'add-slot': { const k = a.dataset.k, s = Math.min(state.semCount, ui.pickSem || state.current); mutate(()=>addSlot(k, s)); toast('Platzhalter im '+s+'. Semester eingefügt', {text:'Ziehe ihn in das Semester, in dem du das Modul belegen willst.', undo:true}); break; }
+    case 'add-slot': { const k = a.dataset.k, s = Math.min(state.semCount, ui.pickSem || state.current); if (semKind(s)==='leave'){ toast(LEAVE_BLOCK, {text:'Platzhalter für Wahlmodule gehören in ein Studiensemester.', tone:'warning'}); break; } mutate(()=>addSlot(k, s)); toast('Platzhalter im '+s+'. Semester eingefügt', {text:'Ziehe ihn in das Semester, in dem du das Modul belegen willst.', undo:true}); break; }
     case 'pick-clear': ui.pickSem = null; renderCatalog(); break;
     case 'cat-tab': {
       const dir = Math.sign(AREA_KEYS.indexOf(a.dataset.k) - AREA_KEYS.indexOf(ui.catTab));
@@ -4275,6 +4337,7 @@ document.addEventListener('click', e=>{
     }
     case 'pick-now': {
       const sel = $('#pick-sem'), sem = sel ? +sel.value : (ui.pickSem || state.current), ref = a.dataset.ref; let res = null;
+      if (semKind(sem)==='leave'){ toast(LEAVE_BLOCK, {text:'Wähle ein anderes Semester.', tone:'warning'}); break; }
       mutate(()=>{ res = placePick(ref, sem, null); });
       if (res){ detail = {type:'item', id:res.it.id}; renderDetail(); pickToast(ref, res); }
       break;
@@ -4317,7 +4380,7 @@ document.addEventListener('change', e=>{
   if (act==='sem-note'){ const s = +a.dataset.s; if (a.value.trim() !== semNote(s)){ mutate(()=>setSemInfo(s, {note:a.value})); refreshColPop(); } return; }
   if (!detail) return;
   const v = +a.value;
-  if (act==='move-item'){ const it = findItem(detail.id); if (it && it.sem!==v){ mutate(()=>moveItem(it.id, v, null)); toast('In das '+v+'. Semester verschoben'); } }
+  if (act==='move-item'){ const it = findItem(detail.id); if (it && it.sem!==v){ if (it.type!=='intern' && semKind(v)==='leave'){ toast(LEAVE_BLOCK, {tone:'warning'}); renderDetail(); return; } mutate(()=>moveItem(it.id, v, null)); toast('In das '+v+'. Semester verschoben'); } }
 });
 $('#cur-sem').addEventListener('change', e=>{ const v = +e.target.value; ui.examSem = null; saveUI(); mutate(()=>{ state.current = v; }); });
 $('#start-term').addEventListener('change', e=>{ const v = e.target.value; mutate(()=>{ state.start = v; }); });
@@ -4352,9 +4415,15 @@ document.addEventListener('submit', e=>{
   } else if (f.id==='new-form'){
     const name = $('#nf-name').value.trim(), cp = Math.round(+$('#nf-cp').value), cat = $('#nf-cat').value, sem = +$('#nf-sem').value, nr = $('#nf-nr').value.trim();
     if (!name){ $('#nf-name').setAttribute('aria-invalid','true'); $('#nf-name').focus(); return; }
+    if (semKind(sem)==='leave'){ toast(LEAVE_BLOCK, {text:'Wähle ein anderes Semester.', tone:'warning'}); return; }
     const id = uid(); let res = null;
     mutate(()=>{ state.custom[id] = Object.assign({name, cp:cp>=0?cp:0, cat, nr}, cat==='stuge' ? {catalog:'stuge'} : {}); res = placePick(id, sem, null); });
     detail = {type:'item', id: res ? res.it.id : id}; renderDetail(); toast(name+' hinzugefügt', {text:'Im '+sem+'. Semester.'});
+  } else if (f.dataset.intern){
+    const it = findItem(f.dataset.intern), fd = new FormData(f), title = String(fd.get('title')||'').trim().slice(0, 60), w = Math.round(+fd.get('weeks'));
+    if (!it || !title) return;
+    mutate(()=>{ it.title = title; if (w>=1 && w<=52) it.weeks = w; else delete it.weeks; });
+    toast('Praktikum gespeichert');
   } else if (f.id==='chat-form'){
     sendChat();
   } else if (f.dataset.edit){
@@ -4464,7 +4533,7 @@ function chatContext(){
   L.push('Studiengang: Wirtschaftsinformatik B.Sc., TU Darmstadt, Prüfungsordnung 2020, 180 CP.');
   L.push('Heute: '+WD_LONG[now.getDay()]+', '+pad(now.getDate())+'.'+pad(now.getMonth()+1)+'.'+now.getFullYear()+'. Studienbeginn: '+termLabel(state.start)+'. Aktuelles Semester: '+state.current+' ('+termOf(state.current).label+').');
   L.push('Prüfungspläne liegen vor für: '+PLAN_KEYS.map(termLabel).join(', ')+'. Für spätere Semester gibt es noch keinen Plan; Termine dort sind nur Orientierung am Plan desselben Semestertyps.');
-  L.push('Regeln im Planer: höchstens '+MAX_TRIES+' Versuche je Modulprüfung (Erstversuch und zwei Wiederholungen). Wahlbereich Informatik 15 CP. Wahlbereich Recht & Wirtschaft und Studium Generale zusammen 9 CP, je Bereich 3 bis 6 CP. Bachelorthesis (12 CP) erst ab 120 CP und mit bestandenem Bachelor-Seminar. Mehr als 36 CP in einem Semester markiert der Planer als sehr hoch. Urlaubssemester zählen nicht als Fachsemester.');
+  L.push('Regeln im Planer: höchstens '+MAX_TRIES+' Versuche je Modulprüfung (Erstversuch und zwei Wiederholungen). Wahlbereich Informatik 15 CP. Wahlbereich Recht & Wirtschaft und Studium Generale zusammen 9 CP, je Bereich 3 bis 6 CP. Bachelorthesis (12 CP) erst ab 120 CP und mit bestandenem Bachelor-Seminar. Mehr als 36 CP in einem Semester markiert der Planer als sehr hoch. Urlaubssemester zählen nicht als Fachsemester; dort sind keine Module möglich, nur Praktika.');
   for (let s=1; s<=state.semCount; s++){
     const t = termOf(s), items = colItems(s);
     L.push('');
@@ -4472,6 +4541,7 @@ function chatContext(){
     if (!items.length) L.push('- (leer)');
     for (const it of items){
       if (it.type==='slot'){ const A = AREAS[it.ref]; L.push('- Platzhalter: noch zu wählendes Wahlmodul '+A.tab+', '+A.cp+' CP'); continue; }
+      if (it.type==='intern'){ L.push('- Praktikum: '+it.title+(it.weeks ? ', '+it.weeks+' Wochen' : '')+' (keine CP)'); continue; }
       const d = defOf(it.ref); if (!d) continue;
       const st = statusOf(it.ref), f = failsOf(it.ref), a = areaOf(it.ref), cat = CATS[d.cat] || CATS.extra;
       const x = st==='passed' || st==='final' ? null : firstExam(d, s), tw = turnusWarn(d, s);
