@@ -16,6 +16,10 @@ desktop.ini
 # Lokaler Nachbau der Pages-Seite
 _site/
 
+# Claude Code: Arbeitsbäume der Sitzungen und lokale Einstellungen
+.claude/worktrees/
+.claude/settings.local.json
+
 # Exportierte Pläne enthalten deinen Studienstand
 semesterplan-*.json
 
