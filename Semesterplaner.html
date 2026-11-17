@@ -1680,16 +1680,18 @@ body { background: var(--surface-page); color: var(--text-primary); }
 .col__set:hover, .col__set[aria-expanded="true"] { background: var(--state-hover); }
 .col__set:focus-visible { outline: var(--border-width-thick) solid var(--focus-ring); outline-offset: 1px; }
 @container (max-width: 168px) { .col .col__set { gap: 4px; margin-left: -4px; padding-inline: 4px; } }
-.col__kicon { display: inline-flex; align-self: center; color: var(--text-secondary); }
-.col__kicon .tuda-icon { width: 14px; height: 14px; }
-/* Art und Notiz des Semesters: vollständig in einem Kasten oben in der Spalte */
-.col__note { display: flex; gap: 7px; margin: 0 4px 8px; padding: 8px 10px; border-radius: var(--radius-md); background: var(--surface); box-shadow: inset 0 0 0 1px var(--border-subtle); font-size: var(--font-size-xs); line-height: 16px; color: var(--text-secondary); }
-.col__note > .tuda-icon { flex: none; width: 14px; height: 14px; margin-top: 1px; }
-.col__note p { min-width: 0; }
-.col__note strong { display: block; font-weight: var(--font-weight-semibold); color: var(--text-primary); }
-.col__note span { display: block; overflow-wrap: anywhere; }
-.col__note.is-warn, .col__note.is-warn strong { color: var(--warning-fg); }
-.col.kind-abroad .col__note > .tuda-icon { color: var(--on-primary-subtle); }
+/* Art des Semesters: farbige Marke unter dem Kopf; die Notiz zeigt erst das Popover */
+.col { --kind-fg: var(--on-primary-subtle); --kind-bg: var(--primary-subtle); }
+.col.kind-leave { --kind-fg: var(--warning-fg); --kind-bg: var(--warning-bg); }
+.col.kind-abroad { --kind-fg: var(--success-fg); --kind-bg: var(--success-bg); }
+.col__kind { grid-column: 1 / -1; justify-self: start; display: inline-flex; align-items: center; gap: 5px; max-width: 100%; height: 24px; margin: 10px 0 0 -2px; padding: 0 10px 0 8px; border: 0; border-radius: var(--radius-full); background: var(--kind-bg); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--kind-fg) 22%, transparent); color: var(--kind-fg); font: inherit; font-size: var(--font-size-xs); line-height: 16px; font-weight: var(--font-weight-semibold); white-space: nowrap; cursor: pointer; transition: background-color var(--duration-fast), transform var(--duration-base) var(--ease-spring); }
+.col__kind:hover, .col__kind[aria-expanded="true"] { background: color-mix(in srgb, var(--kind-fg) 14%, var(--kind-bg)); }
+.col__kind:active { transform: scale(0.96); }
+.col__kind:focus-visible { outline: var(--border-width-thick) solid var(--focus-ring); outline-offset: 2px; }
+.col__kind .tuda-icon { flex: none; width: 13px; height: 13px; stroke-width: 2.25; }
+.col__kind > span { overflow: hidden; text-overflow: ellipsis; }
+.col__kind > i { flex: none; width: 5px; height: 5px; margin-left: 1px; border-radius: 50%; background: currentColor; opacity: 0.75; }
+.col__kind.is-warn { --kind-fg: var(--error-fg); --kind-bg: var(--error-bg); }
 /* „+ Praktikum“ im Urlaubssemester */
 .col__add { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 40px; padding: 0 var(--space-3); border: 1.5px dashed color-mix(in srgb, var(--text-tertiary) 55%, transparent); border-radius: var(--card-r); background: transparent; color: var(--text-secondary); font: inherit; font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); cursor: pointer; transition: background-color var(--duration-fast), color var(--duration-fast); }
 .col__add:hover { background: var(--state-hover); color: var(--text-primary); }
@@ -1698,12 +1700,14 @@ body { background: var(--surface-page); color: var(--text-primary); }
 .intern__tag { display: inline-flex; align-items: center; gap: 3px; }
 .intern__tag .tuda-icon { width: 12px; height: 12px; }
 .col.drop-no { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--warning-fg) 55%, transparent); }
-.col.kind-leave { background-image: repeating-linear-gradient(135deg, color-mix(in srgb, var(--text-primary) 5%, transparent) 0 5px, transparent 5px 12px); }
+.col.kind-leave { background-image: linear-gradient(180deg, color-mix(in srgb, var(--kind-bg) 80%, transparent), transparent 200px), repeating-linear-gradient(135deg, color-mix(in srgb, var(--text-primary) 4%, transparent) 0 5px, transparent 5px 12px); }
+.col.kind-abroad { background-image: linear-gradient(180deg, color-mix(in srgb, var(--kind-bg) 80%, transparent), transparent 200px); }
 .col.kind-leave .col__num { color: var(--text-tertiary); }
 .col-pop { width: 304px; }
 .col-pop__t { font-size: var(--font-size-sm); line-height: 18px; color: var(--text-secondary); }
 .col-pop__t strong { font-weight: var(--font-weight-semibold); color: var(--text-primary); }
 .col-pop .tuda-input { min-height: 38px; font-size: var(--font-size-md); }
+.col-pop .col-pop__note { min-height: 0; padding: 7px 12px; resize: none; font-size: var(--font-size-md); line-height: 20px; }
 .col-pop__kinds { display: grid; grid-template-columns: repeat(3, 1fr); width: 100%; border-radius: var(--radius-md); }
 .col-pop__add { justify-self: start; }
 .col-pop__kinds .tuda-segmented__item > span { min-height: 34px; padding: 0 var(--space-2); border-radius: calc(var(--radius-md) - 2px); font-size: var(--font-size-sm); }
@@ -1943,6 +1947,7 @@ span.tuda-calendar__day:hover { background: transparent; }
   .plan-main { padding-top: var(--space-2); }
   .col__hd { padding: 6px 8px 8px 10px; }
   .col__meter { margin-top: 6px; }
+  .col__kind { margin-top: 8px; }
   .col__list { gap: 6px; }
   .mod { gap: 3px; padding-top: 7px; padding-bottom: 8px; }
   .slot { padding-top: 6px; padding-bottom: 7px; }
@@ -3594,12 +3599,13 @@ function renderBoard(){
   for (let s=1; s<=N; s++){
     const t = termOf(s), now = s===state.current, cp = semCP(s), high = cp>36;
     const kind = semKind(s), K = SEM_KINDS[kind], note = semNote(s), items = colItems(s), warn = kind==='leave' && items.some(i=>i.type!=='intern');
-    const noteBox = kind!=='study' || note || warn ? '<div class="col__note'+(warn ? ' is-warn' : '')+'">'+ic(warn ? 'alert-triangle' : kind==='study' ? 'info' : K.icon)+'<p><strong>'+esc(kind==='study' ? 'Notiz' : K.long)+'</strong>'+(note ? '<span>'+esc(note)+'</span>' : '')+(warn ? '<span>'+esc(LEAVE_BLOCK)+' Verschieb die Module in ein anderes Semester.</span>' : '')+'</p></div>' : '';
+    const tip = (kind==='study' ? 'Notiz' : K.long)+(note ? ': '+note : '')+(warn ? '. '+LEAVE_BLOCK+' Verschieb die Module in ein anderes Semester.' : '');
+    const kindTag = kind!=='study' || note || warn ? '<button type="button" class="col__kind'+(warn ? ' is-warn' : '')+'" data-act="sem-set" data-s="'+s+'" aria-haspopup="dialog" aria-expanded="false" aria-controls="col-pop" title="'+esc(tip)+'" aria-label="'+esc(tip+'. '+s+'. Semester einstellen')+'">'+ic(warn ? 'alert-triangle' : kind==='study' ? 'edit' : K.icon)+'<span>'+esc(kind==='study' ? 'Notiz' : K.label)+'</span>'+(note && kind!=='study' ? '<i aria-hidden="true"></i>' : '')+'</button>' : '';
     h += '<section class="col'+(now?' is-current':'')+(kind!=='study'?' kind-'+kind:'')+'" data-sem="'+s+'" style="--i:'+(s-1)+'" aria-label="'+esc(s+'. Semester, '+t.label+(kind!=='study'?', '+K.long:'')+', '+cp+' CP'+(now?', aktuelles Semester':''))+'">'+
-      '<header class="col__hd"><button type="button" class="col__set" data-act="sem-set" data-s="'+s+'" aria-haspopup="dialog" aria-expanded="false" aria-controls="col-pop" title="'+esc(t.label+(kind!=='study' ? ' · '+K.long : '')+' · Semester einstellen')+'"><span class="col__num" aria-hidden="true">'+s+'</span><span class="col__term">'+t.tiny+'</span>'+(kind!=='study' ? '<span class="col__kicon" aria-hidden="true">'+ic(K.icon)+'</span>' : '')+'<span class="tuda-sr-only">, '+esc(s+'. Semester einstellen')+'</span></button>'+
+      '<header class="col__hd"><button type="button" class="col__set" data-act="sem-set" data-s="'+s+'" aria-haspopup="dialog" aria-expanded="false" aria-controls="col-pop" title="'+esc(t.label+(kind!=='study' ? ' · '+K.long : '')+' · Semester einstellen')+'"><span class="col__num" aria-hidden="true">'+s+'</span><span class="col__term">'+t.tiny+'</span>'+'<span class="tuda-sr-only">, '+esc(s+'. Semester einstellen')+'</span></button>'+
       '<span class="col__cp'+(high?' is-high':'')+'"'+(high?' title="Mehr als 36 CP in einem Semester"':'')+'>'+(high?ic('alert-triangle'):'')+cp+' CP</span>'+
       (s===N && N>6 ? '<button type="button" class="tuda-btn tuda-btn--ghost tuda-btn--neutral tuda-btn--icon tuda-btn--sm col__rm" data-act="rm-sem" aria-label="Semester '+s+' entfernen" title="Semester '+s+' entfernen">'+ic('x')+'</button>' : '')+
-      '<span class="col__meter'+(high?' is-high':'')+'" aria-hidden="true"><i style="width:'+Math.min(100, cp/30*100)+'%"></i></span></header>'+noteBox+
+      '<span class="col__meter'+(high?' is-high':'')+'" aria-hidden="true"><i style="width:'+Math.min(100, cp/30*100)+'%"></i></span>'+kindTag+'</header>'+
       '<div class="col__list" data-sem="'+s+'">';
     for (const it of items) h += it.type==='slot' ? slotHTML(it) : it.type==='intern' ? internHTML(it) : modHTML(it);
     if (kind==='leave') h += '<button type="button" class="col__add" data-act="add-intern" data-s="'+s+'">'+ic('plus')+'Praktikum</button>';
@@ -4200,7 +4206,8 @@ window.addEventListener('resize', ()=>{ if (!pop.hidden) placePop(); });
 
 /* ---------- Semester einstellen: Art, Notiz, leeres Semester einfügen oder entfernen ---------- */
 const colPop = $('#col-pop'); let colPopSem = 0;
-function colPopBtn(){ return document.querySelector('.col__set[data-s="'+colPopSem+'"]'); }
+let colPopVia = 'set';   // geöffnet über die Nummer im Kopf (set) oder über die Marke darunter (kind)
+function colPopBtn(){ return (colPopVia==='kind' && document.querySelector('.col__kind[data-s="'+colPopSem+'"]')) || document.querySelector('.col__set[data-s="'+colPopSem+'"]'); }
 function placeColPop(){
   const b = colPopBtn(); if (!b){ closeColPop(false); return; }
   const r = b.getBoundingClientRect(), h = colPop.offsetHeight, below = r.bottom + 8 + h <= window.innerHeight - 8;
@@ -4214,7 +4221,7 @@ function renderColPop(){
   colPop.innerHTML = '<p class="col-pop__t" id="col-pop-t"><strong>'+s+'. Semester</strong> · '+esc(t.label)+'</p>'+
     '<div class="tuda-field"><span class="tuda-label" id="col-kind-l">Art des Semesters</span><div class="tuda-segmented col-pop__kinds" role="radiogroup" aria-labelledby="col-kind-l">'+kinds+'</div>'+
       (K.hint || noLeave ? '<p class="col-pop__hint'+(warn ? ' sev-warn' : '')+'">'+(warn ? ic('alert-triangle') : '')+'<span>'+esc((K.hint ? K.hint+' ' : '')+(warn ? 'Hier liegen noch '+mods+(mods===1 ? ' Modul.' : ' Module.') : noLeave ? 'Urlaub geht nur in einem Semester ohne Module. Füg dafür unten ein leeres Semester davor ein.' : ''))+'</span></p>' : '')+'</div>'+
-    '<div class="tuda-field"><label class="tuda-label" for="col-note">Notiz <span class="tuda-label__optional">(optional)</span></label><input class="tuda-input" id="col-note" maxlength="60" autocomplete="off" data-act="sem-note" data-s="'+s+'" value="'+esc(semNote(s))+'" placeholder="'+(k==='abroad' ? 'z. B. Erasmus in Lund' : k==='leave' ? 'z. B. Auszeit, Reise' : 'z. B. Teilzeit')+'"></div>'+
+    '<div class="tuda-field"><label class="tuda-label" for="col-note">Notiz <span class="tuda-label__optional">(optional)</span></label><textarea class="tuda-textarea col-pop__note" id="col-note" rows="2" maxlength="60" autocomplete="off" data-act="sem-note" data-s="'+s+'" placeholder="'+(k==='abroad' ? 'z. B. Erasmus in Lund' : k==='leave' ? 'z. B. Auszeit, Reise' : 'z. B. Teilzeit')+'">'+esc(semNote(s))+'</textarea></div>'+
     '<div class="tuda-field"><span class="tuda-label">Praktikum</span><button type="button" class="tuda-btn tuda-btn--secondary tuda-btn--sm col-pop__add" data-act="add-intern" data-s="'+s+'">'+ic('plus')+'Praktikum einplanen</button>'+
       (interns.length ? '<p class="col-pop__hint"><span>'+esc('Schon geplant: '+interns.map(i=>i.title).join(', '))+'</span></p>' : '')+'</div>'+
     '<div class="tuda-field"><span class="tuda-label">Leeres Semester einfügen</span><div class="col-pop__row">'+
@@ -4224,10 +4231,10 @@ function renderColPop(){
     (N>6 ? '<button type="button" class="tuda-btn tuda-btn--ghost tuda-btn--sm col-pop__rm" data-act="sem-remove" data-s="'+s+'"'+(empty ? '' : ' disabled title="Verschiebe zuerst die Module in andere Semester"')+'>'+ic('trash')+'Semester entfernen</button>' : '');
   syncSegments(colPop);
 }
-function openColPop(s){
+function openColPop(s, via){
   if (!pop.hidden) closePop(false);
-  document.querySelectorAll('.col__set[aria-expanded="true"]').forEach(b=>b.setAttribute('aria-expanded', 'false'));
-  colPopSem = s; colPop.hidden = false; renderColPop(); placeColPop();
+  document.querySelectorAll('[data-act="sem-set"][aria-expanded="true"]').forEach(b=>b.setAttribute('aria-expanded', 'false'));
+  colPopSem = s; colPopVia = via || 'set'; colPop.hidden = false; renderColPop(); placeColPop();
   const b = colPopBtn(); if (b) b.setAttribute('aria-expanded', 'true');
   const f = colPop.querySelector('input[name="semkind"]:checked'); if (f) f.focus({preventScroll:true});
 }
@@ -4244,8 +4251,9 @@ function refreshColPop(){
   const b = colPopBtn(); if (b) b.setAttribute('aria-expanded', 'true');
   const el = fk ? colPop.querySelector(fk) : null; if (el && !el.disabled) el.focus({preventScroll:true});
 }
-document.addEventListener('pointerdown', e=>{ if (!colPop.hidden && !colPop.contains(e.target) && !(e.target.closest && e.target.closest('.col__set'))) closeColPop(false); }, true);
-colPop.addEventListener('focusout', e=>{ const r = e.relatedTarget; if (r && !colPop.contains(r) && !(r.closest && r.closest('.col__set'))) closeColPop(false); });
+document.addEventListener('pointerdown', e=>{ if (!colPop.hidden && !colPop.contains(e.target) && !(e.target.closest && e.target.closest('[data-act="sem-set"]'))) closeColPop(false); }, true);
+colPop.addEventListener('focusout', e=>{ const r = e.relatedTarget; if (r && !colPop.contains(r) && !(r.closest && r.closest('[data-act="sem-set"]'))) closeColPop(false); });
+colPop.addEventListener('keydown', e=>{ if (e.key==='Enter' && !e.shiftKey && e.target.id==='col-note'){ e.preventDefault(); e.target.dispatchEvent(new Event('change', {bubbles:true})); } });
 window.addEventListener('resize', ()=>{ if (!colPop.hidden) placeColPop(); });
 $('#board-wrap').addEventListener('scroll', ()=>{ if (!colPop.hidden) placeColPop(); }, {passive:true});
 
@@ -4290,7 +4298,7 @@ document.addEventListener('click', e=>{
       toast(n+' gelöscht', {undo:true});
       break;
     }
-    case 'sem-set': { const s = +a.dataset.s; if (!colPop.hidden && colPopSem===s) closeColPop(false); else openColPop(s); break; }
+    case 'sem-set': { const s = +a.dataset.s; if (!colPop.hidden && colPopSem===s) closeColPop(false); else openColPop(s, a.classList.contains('col__kind') ? 'kind' : 'set'); break; }
     case 'sem-insert': {
       const at = +a.dataset.at; if (state.semCount >= 16) break;
       mutate(()=>{ insertSemester(at); });
@@ -4377,7 +4385,7 @@ document.addEventListener('change', e=>{
     return;
   }
   if (act==='sem-kind'){ const s = +a.dataset.s; mutate(()=>setSemInfo(s, {kind:a.value})); refreshColPop(); return; }
-  if (act==='sem-note'){ const s = +a.dataset.s; if (a.value.trim() !== semNote(s)){ mutate(()=>setSemInfo(s, {note:a.value})); refreshColPop(); } return; }
+  if (act==='sem-note'){ const s = +a.dataset.s, v = a.value.replace(/\s+/g, ' ').trim(); if (v !== semNote(s)){ mutate(()=>setSemInfo(s, {note:v})); refreshColPop(); } return; }
   if (!detail) return;
   const v = +a.value;
   if (act==='move-item'){ const it = findItem(detail.id); if (it && it.sem!==v){ if (it.type!=='intern' && semKind(v)==='leave'){ toast(LEAVE_BLOCK, {tone:'warning'}); renderDetail(); return; } mutate(()=>moveItem(it.id, v, null)); toast('In das '+v+'. Semester verschoben'); } }
