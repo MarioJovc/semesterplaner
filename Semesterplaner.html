@@ -1741,6 +1741,7 @@ body.is-resizing-job, body.is-resizing-job * { cursor: ew-resize !important; }
 .job-form__row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
 .job-form__save { align-self: end; }
 .rescue { margin: 0 0 var(--space-4); }
+.add-chev { width: 14px; height: 14px; margin-left: -2px; opacity: 0.7; }
 .rescue__acts { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-3); }
 .save-state.is-error { color: var(--error-fg); }
 .col-pop .col-pop__rm:disabled { opacity: 0.45; cursor: not-allowed; }
@@ -2164,7 +2165,17 @@ span.tuda-calendar__day:hover { background: transparent; }
       <span class="save-state" id="save-status" role="status"></span>
       <button type="button" class="tuda-btn tuda-btn--ghost tuda-btn--neutral tuda-btn--icon tuda-btn--sm" id="btn-undo" aria-label="Rückgängig" data-tuda-tooltip="Rückgängig (Strg+Z)"></button>
       <button type="button" class="tuda-btn tuda-btn--ghost tuda-btn--neutral tuda-btn--sm" id="btn-chat" aria-haspopup="dialog" aria-expanded="false" aria-controls="chat" hidden><svg data-icon="sparkle"></svg><span class="hide-sm">Fragen</span></button>
-      <button type="button" class="tuda-btn tuda-btn--ghost tuda-btn--neutral tuda-btn--sm" id="btn-custom" aria-label="Eigenes Modul hinzufügen"><svg data-icon="plus"></svg><span class="hide-sm">Eigenes Modul</span></button>
+      <div class="tuda-menu-wrap">
+        <button type="button" class="tuda-btn tuda-btn--ghost tuda-btn--neutral tuda-btn--sm" id="btn-custom" data-tuda-menu aria-controls="add-menu" aria-label="Hinzufügen"><svg data-icon="plus"></svg><span class="hide-sm">Hinzufügen</span><svg data-icon="chevron-down" class="hide-sm add-chev"></svg></button>
+        <div class="tuda-menu" id="add-menu" role="menu" aria-label="Hinzufügen" hidden>
+          <button type="button" class="tuda-menu__item" role="menuitem" data-act="add-custom"><svg data-icon="book"></svg>Eigenes Modul</button>
+          <button type="button" class="tuda-menu__item" role="menuitem" data-act="add-intern"><svg data-icon="building"></svg>Praktikum</button>
+          <button type="button" class="tuda-menu__item" role="menuitem" data-act="add-job">Werkstudentenjob</button>
+          <div class="tuda-menu__sep" role="separator"></div>
+          <button type="button" class="tuda-menu__item" role="menuitem" data-act="sem-current"><svg data-icon="globe"></svg>Urlaubs- oder Auslandssemester …</button>
+          <button type="button" class="tuda-menu__item" role="menuitem" data-act="add-sem"><svg data-icon="calendar"></svg>Semester am Ende anhängen</button>
+        </div>
+      </div>
       <button type="button" class="tuda-btn tuda-btn--ghost tuda-btn--neutral tuda-btn--icon tuda-btn--sm" id="btn-cat" aria-label="Modulkatalog ein- oder ausblenden" data-tuda-tooltip="Katalog ein- oder ausblenden"><svg data-icon="panel-left" class="flip"></svg></button>
       <div class="tuda-menu-wrap">
         <button type="button" class="tuda-btn tuda-btn--ghost tuda-btn--neutral tuda-btn--icon tuda-btn--sm" data-tuda-menu aria-controls="app-menu" aria-label="Weitere Aktionen"><svg data-icon="more"></svg></button>
@@ -4547,9 +4558,11 @@ document.addEventListener('click', e=>{
   switch (act){
     case 'add-sem': mutate(addSemester); toast('Semester '+state.semCount+' hinzugefügt'); setTimeout(()=>{ const w = $('#board-wrap'); w.scrollTo({left:w.scrollWidth, behavior:'smooth'}); }, 30); break;
     case 'rm-sem': removeLastSemester(); break;
+    case 'add-custom': openDetail({type:'new'}, $('#btn-custom')); break;
+    case 'sem-current': { const s = state.current; scrollToCurrent(); setTimeout(()=>openColPop(s, 'set'), 60); break; }
     case 'add-intern': {
-      const s = +a.dataset.s, it = {id:uid(), ref:'intern', type:'intern', sem:s, row:999, title:'Praktikum'};
-      const opener = colPopBtn() || a; closeColPop(false);
+      const s = +a.dataset.s || state.current, it = {id:uid(), ref:'intern', type:'intern', sem:s, row:999, title:'Praktikum'};
+      const opener = (a.closest('#add-menu') && $('#btn-custom')) || colPopBtn() || a; closeColPop(false);
       mutate(()=>{ state.items.push(it); normalize(); });
       openDetail({type:'intern', id:it.id}, opener);
       setTimeout(()=>{ const ti = $('#in-title'); if (ti){ ti.focus(); ti.select(); } }, 60);
@@ -4563,7 +4576,7 @@ document.addEventListener('click', e=>{
     }
     case 'add-job': {
       const s = +a.dataset.s || state.current, j = {id:uid(), title:'Werkstudentenjob', hours:15, from:s, to:state.semCount};
-      const opener = colPopBtn() || a; closeColPop(false);
+      const opener = (a.closest('#add-menu') && $('#btn-custom')) || colPopBtn() || a; closeColPop(false);
       mutate(()=>{ state.jobs.push(j); });
       openDetail({type:'job', id:j.id}, opener);
       setTimeout(()=>{ const ti = $('#job-title'); if (ti){ ti.focus(); ti.select(); } }, 60);
@@ -4674,7 +4687,7 @@ document.addEventListener('change', e=>{
 });
 $('#cur-sem').addEventListener('change', e=>{ const v = +e.target.value; ui.examSem = null; saveUI(); mutate(()=>{ state.current = v; }); });
 $('#start-term').addEventListener('change', e=>{ const v = e.target.value; mutate(()=>{ state.start = v; }); });
-$('#btn-custom').addEventListener('click', e=>openDetail({type:'new'}, e.currentTarget));
+{ const jb = $('#add-menu [data-act="add-job"]'); if (jb) jb.insertAdjacentHTML('afterbegin', ic('briefcase')); }   // Koffer gibt es nur als eigenes Symbol
 $('#btn-undo').addEventListener('click', undo);
 $('#btn-cat').addEventListener('click', ()=>{ ui.catOpen = !ui.catOpen; saveUI(); renderTop(); });
 $('#file-import').addEventListener('change', e=>{
