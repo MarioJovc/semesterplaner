@@ -1742,6 +1742,37 @@ body.is-resizing-job, body.is-resizing-job * { cursor: ew-resize !important; }
 .job-form__save { align-self: end; }
 .rescue { margin: 0 0 var(--space-4); }
 .add-chev { width: 14px; height: 14px; margin-left: -2px; opacity: 0.7; }
+/* Fortschritt: Studienverlauf mit Prognose und Notenschnitt */
+.prog { margin: var(--space-8) 0 var(--space-6); }
+.prog-grid { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: var(--space-4); align-items: start; }
+@media (max-width: 959.98px) { .prog-grid { grid-template-columns: minmax(0, 1fr); } }
+.prog-kpis { display: flex; flex-wrap: wrap; gap: var(--space-3) var(--space-6); }
+.prog-kpi b, .prog-grade b { display: block; font-family: var(--font-display); font-size: 26px; line-height: 30px; font-weight: var(--font-weight-heavy); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; color: var(--text-primary); }
+.prog-kpi span { font-size: var(--font-size-xs); line-height: 16px; color: var(--text-secondary); }
+.prog-chart { display: block; width: 100%; height: auto; overflow: visible; }
+.pc-grid line { stroke: var(--border-subtle); stroke-width: 1; }
+.pc-grid text, .pc-now text { font-size: 11px; fill: var(--text-tertiary); font-variant-numeric: tabular-nums; }
+.pc-now line { stroke: var(--text-tertiary); stroke-dasharray: 2 3; }
+.pc-now text { font-weight: var(--font-weight-semibold); fill: var(--text-secondary); }
+.pc-ref { fill: none; stroke: var(--text-tertiary); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.pc-plan { fill: none; stroke: color-mix(in srgb, var(--primary) 42%, transparent); stroke-width: 2; stroke-linejoin: round; }
+.pc-area { fill: color-mix(in srgb, var(--primary) 12%, transparent); stroke: none; }
+.pc-pass { fill: none; stroke: var(--primary); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
+.pc-trend { fill: none; stroke: var(--warning-fg); stroke-width: 2.5; stroke-dasharray: 1 6; stroke-linecap: round; }
+.pc-dot { fill: var(--surface); stroke: var(--primary); stroke-width: 2; }
+.pc-end { fill: var(--warning-fg); }
+.prog-legend { display: flex; flex-wrap: wrap; gap: 4px var(--space-4); font-size: var(--font-size-xs); line-height: 16px; color: var(--text-secondary); }
+.prog-legend i { display: inline-block; width: 18px; height: 0; margin-right: 6px; vertical-align: middle; border-top: 3px solid var(--primary); border-radius: 2px; }
+.prog-legend .lg-plan { border-top-color: color-mix(in srgb, var(--primary) 42%, transparent); border-top-width: 2px; }
+.prog-legend .lg-ref { border-top: 2px dashed var(--text-tertiary); }
+.prog-legend .lg-trend { border-top: 3px dotted var(--warning-fg); }
+.prog-lead { font-size: var(--font-size-sm); line-height: 20px; color: var(--text-secondary); }
+.prog-lead strong { color: var(--text-primary); font-weight: var(--font-weight-semibold); }
+.prog-grade { display: flex; align-items: center; gap: var(--space-3); }
+.prog-grade b { font-size: 40px; line-height: 44px; color: var(--primary); }
+.prog-grade span { font-size: var(--font-size-sm); line-height: 18px; color: var(--text-secondary); }
+.prog-empty { font-size: var(--font-size-sm); color: var(--text-secondary); }
+.prog-goal { max-width: 220px; }
 .rescue__acts { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-3); }
 .save-state.is-error { color: var(--error-fg); }
 .col-pop .col-pop__rm:disabled { opacity: 0.45; cursor: not-allowed; }
@@ -2214,6 +2245,7 @@ span.tuda-calendar__day:hover { background: transparent; }
       <div class="cat-cell"><aside class="catalog" id="catalog" aria-label="Modulkatalog"></aside></div>
     </div>
 
+    <section class="prog" id="prog" aria-labelledby="prog-h"></section>
     <section class="exams" id="exams" aria-labelledby="ex-h">
       <div class="ex-head">
         <h2 id="ex-h">Prüfungen</h2>
@@ -3259,6 +3291,8 @@ function normalizeIn(items){
   for (const i of items) (by[i.sem] = by[i.sem] || []).push(i);
   for (const k in by) by[k].sort(byRow).forEach((i,n)=>{ i.row = n+1; });
 }
+const GRADES = [1, 1.3, 1.7, 2, 2.3, 2.7, 3, 3.3, 3.7, 4];
+function gradeTxt(g){ return (Math.round(g*10)/10).toFixed(1).replace('.', ','); }
 function cleanStatus(raw){
   const out = {};
   if (!raw || typeof raw!=='object') return out;
@@ -3267,7 +3301,7 @@ function cleanStatus(raw){
     if (typeof v==='string'){ if (v==='passed' || v==='registered') st = v; else if (v==='failed') fails = 1; }
     else if (v && typeof v==='object'){ st = ['planned','registered','passed'].includes(v.st) ? v.st : 'planned'; fails = Math.max(0, Math.min(MAX_TRIES, Math.round(+v.fails)||0)); }
     if (fails >= MAX_TRIES && st==='passed') st = 'planned';
-    if (st!=='planned' || fails) out[ref] = {st, fails};
+    if (st!=='planned' || fails){ out[ref] = {st, fails}; const g = v && typeof v==='object' ? +v.grade : NaN; if (st==='passed' && GRADES.includes(g)) out[ref].grade = g; }
   }
   return out;
 }
@@ -3285,6 +3319,119 @@ function cleanCustom(raw){
     out[k] = c;
   }
   return out;
+}
+/* ---------- Noten: Gewicht nach Ordnung B.Sc. WINF 2020 ---------- */
+function cpTxt(x){ return String(Math.round(x*10)/10).replace('.', ','); }
+function gradeWeight(ref){
+  const d = defOf(ref); if (!d) return 0;
+  if (d.cat==='extra' || d.cat==='stuge' || areaOf(ref)==='stuge' || d.catalog==='stuge') return 0;   // Studium Generale: Faktor 0
+  return (+d.cp||0) * (d.cat==='thesis' ? 3 : 1);                                                        // Thesis: Faktor 3
+}
+function gradeStats(){
+  let sum = 0, w = 0, n = 0, openW = 0, noGrade = 0;
+  for (const it of state.items){
+    if (it.type==='slot'){ if (it.ref!=='stuge' && AREAS[it.ref]) openW += AREAS[it.ref].cp; continue; }
+    if (it.type!=='mod') continue;
+    const gw = gradeWeight(it.ref); if (!gw) continue;
+    const rec = state.status[it.ref];
+    if (statusOf(it.ref)==='passed' && rec && rec.grade){ sum += rec.grade * gw; w += gw; n++; }
+    else { openW += gw; if (statusOf(it.ref)==='passed') noGrade++; }
+  }
+  const avg = w ? sum / w : null;
+  return {avg, shown: avg==null ? null : Math.floor(avg*10 + 1e-9) / 10, w, n, openW, sum, noGrade};
+}
+function gradeWord(g){ return g <= 1.5 ? 'sehr gut' : g <= 2.5 ? 'gut' : g <= 3.5 ? 'befriedigend' : 'ausreichend'; }
+/* ---------- Studienverlauf: bestanden, Plan, Regelstudienzeit und Trend ---------- */
+function progress(){
+  const N = state.semCount, cur = Math.max(1, Math.min(state.current, N)), leave = s => s<=N && semKind(s)==='leave';
+  const passBy = Array(N+1).fill(0), planBy = Array(N+1).fill(0);
+  for (const it of state.items){
+    const s = it.sem; if (!(s>=1 && s<=N)) continue;
+    if (it.type==='slot'){ planBy[s] += AREAS[it.ref] ? AREAS[it.ref].cp : 0; continue; }
+    if (it.type!=='mod') continue;
+    const d = defOf(it.ref); if (!d || d.cat==='extra') continue;
+    planBy[s] += +d.cp||0; if (statusOf(it.ref)==='passed') passBy[s] += +d.cp||0;
+  }
+  const cumPass = [0], cumPlan = [0];
+  for (let s=1; s<=N; s++){ cumPass[s] = cumPass[s-1] + passBy[s]; cumPlan[s] = cumPlan[s-1] + planBy[s]; }
+  let doneFS = 0; for (let s=1; s<cur; s++) if (!leave(s)) doneFS++;
+  const before = cumPass[cur-1], pace = doneFS ? before / doneFS : null;
+  // Regelstudienzeit: 30 CP je Fachsemester, Urlaubssemester zählen nicht
+  const ref = [0]; let rEnd = 0;
+  for (let s=1; s<=40 && ref[s-1] < 180; s++){ ref[s] = Math.min(180, ref[s-1] + (leave(s) ? 0 : 30)); if (ref[s]>=180) rEnd = s; }
+  // Trend: ab dem aktuellen Semester mit dem bisherigen Tempo
+  let trend = null, end = null, endFS = null;
+  if (pace && pace >= 3){
+    trend = [[cur-1, before]]; let cp = before, s = cur-1, fs = doneFS;
+    while (cp < 180 - 1e-6 && s < 30){ s++; if (!leave(s)){ cp = Math.min(180, cp + pace); fs++; } trend.push([s, cp]); }
+    end = s; endFS = fs;
+  }
+  let planEnd = 0; for (let s=1; s<=N; s++) if (planBy[s]) planEnd = s;
+  return {N, cur, cumPass, cumPlan, ref, rEnd, pace, doneFS, before, passed: cumPass[N], trend, end, endFS, planEnd, planCP: cumPlan[N]};
+}
+function progChart(P){
+  const M = Math.max(P.N, P.rEnd, P.end || 0, 6), W = 640, H = 220, L = 38, R = 12, T = 12, B = 26;
+  const x = s => L + (W - L - R) * s / M, y = cp => T + (H - T - B) * (1 - cp / 180);
+  const path = pts => pts.map((p, i)=>(i ? 'L' : 'M')+x(p[0]).toFixed(1)+' '+y(p[1]).toFixed(1)).join(' ');
+  let g = '<g class="pc-grid">';
+  for (const v of [0, 60, 120, 180]) g += '<line x1="'+L+'" x2="'+(W-R)+'" y1="'+y(v).toFixed(1)+'" y2="'+y(v).toFixed(1)+'"/><text x="'+(L-6)+'" y="'+(y(v)+4).toFixed(1)+'" text-anchor="end">'+v+'</text>';
+  for (let s=1; s<=M; s++) g += '<text x="'+x(s-0.5).toFixed(1)+'" y="'+(H-8)+'" text-anchor="middle">'+s+'</text>';
+  g += '</g>';
+  const refPts = P.ref.map((v, s)=>[s, v]).filter(p=>p[0] <= M);
+  const planPts = P.cumPlan.map((v, s)=>[s, v]);
+  const passPts = P.cumPass.slice(0, P.cur + 1).map((v, s)=>[s, v]).filter((p, i, a)=>i < P.cur || p[1] > a[P.cur-1][1]);
+  const last = passPts[passPts.length-1];
+  let h = '<svg class="prog-chart" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc('Studienverlauf: '+P.passed+' von 180 CP bestanden. '+(P.end ? 'Beim bisherigen Tempo fertig nach '+P.endFS+' Fachsemestern.' : ''))+'">'+g+
+    '<g class="pc-now"><line x1="'+x(P.cur-0.5).toFixed(1)+'" x2="'+x(P.cur-0.5).toFixed(1)+'" y1="'+T+'" y2="'+(H-B)+'"/><text x="'+(x(P.cur-0.5)+4).toFixed(1)+'" y="'+(T+10)+'">jetzt</text></g>'+
+    '<path class="pc-ref" d="'+path(refPts)+'"/>'+
+    '<path class="pc-plan" d="'+path(planPts)+'"/>'+
+    '<path class="pc-area" d="'+path(passPts)+' L'+x(last[0]).toFixed(1)+' '+y(0).toFixed(1)+' L'+x(0).toFixed(1)+' '+y(0).toFixed(1)+' Z"/>'+
+    '<path class="pc-pass" d="'+path(passPts)+'"/>'+
+    (P.trend ? '<path class="pc-trend" d="'+path(P.trend)+'"/><circle class="pc-end" cx="'+x(P.trend[P.trend.length-1][0]).toFixed(1)+'" cy="'+y(180).toFixed(1)+'" r="4"/>' : '')+
+    passPts.slice(1).map(p=>'<circle class="pc-dot" cx="'+x(p[0]).toFixed(1)+'" cy="'+y(p[1]).toFixed(1)+'" r="3.5"/>').join('')+'</svg>';
+  return h;
+}
+function renderProgress(){
+  const box = $('#prog'); if (!box) return;
+  const P = progress(), S = gradeStats(), rest = 180 - P.passed;
+  const fsTxt = n => n+(n===1 ? ' Fachsemester' : ' Fachsemestern');
+  let lead;
+  if (P.end){
+    const diff = P.endFS - 6;
+    lead = 'Bei deinem bisherigen Tempo von '+cpTxt(P.pace)+' CP pro Semester bist du im <strong>'+esc(termOf(P.end).label)+'</strong> fertig, nach '+fsTxt(P.endFS)+
+      (diff > 0 ? ', also '+diff+(diff===1 ? ' Semester' : ' Semester')+' über der Regelstudienzeit.' : diff < 0 ? ', also vor der Regelstudienzeit.' : ', also genau in der Regelstudienzeit.');
+  } else if (P.doneFS && !P.before){
+    lead = 'Markiere deine bestandenen Module, dann berechnet der Planer dein Tempo und wann du fertig bist.';
+  } else if (!P.doneFS){
+    lead = 'Der Trend erscheint, sobald dein erstes Semester abgeschlossen ist.';
+  } else {
+    lead = 'Für eine Prognose ist dein bisheriges Tempo zu niedrig.';
+  }
+  const planTxt = P.planEnd ? 'Dein Plan endet im '+termOf(P.planEnd).label+(P.planCP < 180 ? ', es fehlen noch '+cpTxt(180 - P.planCP)+' CP.' : '.') : '';
+  const kurs = '<div class="ex-card__hd"><h3>Studienverlauf</h3></div>'+
+    '<div class="prog-kpis"><div class="prog-kpi"><b>'+cpTxt(P.passed)+'</b><span>von 180 CP bestanden</span></div>'+
+      '<div class="prog-kpi"><b>'+(P.pace!=null ? cpTxt(P.pace) : '–')+'</b><span>CP pro Semester bisher</span></div>'+
+      '<div class="prog-kpi"><b>'+(P.endFS || '–')+'</b><span>Fachsemester voraussichtlich</span></div></div>'+
+    progChart(P)+
+    '<div class="prog-legend"><span><i class="lg-pass"></i>bestanden</span><span><i class="lg-plan"></i>Plan</span><span><i class="lg-ref"></i>Regelstudienzeit (30 CP pro Semester)</span>'+(P.trend ? '<span><i class="lg-trend"></i>Trend</span>' : '')+'</div>'+
+    '<p class="prog-lead">'+lead+(planTxt ? ' '+esc(planTxt) : '')+'</p>';
+  const goal = GRADES.includes(+ui.goal) || (+ui.goal>=1 && +ui.goal<=4) ? +ui.goal : 2;
+  let need = '';
+  if (S.openW){
+    const r = ((goal + 0.0999) * (S.w + S.openW) - S.sum) / S.openW;   // abgeschnitten: für 2,0 reicht alles unter 2,1
+    need = r < 1 ? 'Ein Schnitt von '+gradeTxt(goal)+' ist rechnerisch nicht mehr erreichbar.' :
+      r > 4 ? 'Selbst mit lauter 4,0 bleibst du bei '+gradeTxt(goal)+' oder besser.' :
+      'Dafür brauchst du in den übrigen Modulen im Schnitt <strong>'+gradeTxt(Math.floor(r*10)/10)+'</strong> oder besser.';
+  }
+  const goals = []; for (let g=10; g<=40; g++) goals.push({value:String(g/10), label:gradeTxt(g/10)});
+  const note = '<div class="ex-card__hd"><h3>Notenschnitt</h3></div>'+
+    (S.avg!=null ? '<div class="prog-grade"><b>'+gradeTxt(S.shown)+'</b><span>'+gradeWord(S.shown)+'<br>aus '+S.n+(S.n===1 ? ' Modul' : ' Modulen')+'</span></div>'
+      : '<p class="prog-empty">Trag bei bestandenen Modulen die Note ein, dann siehst du hier deinen Schnitt.</p>')+
+    (S.noGrade ? '<p class="tuda-hint">Bei '+S.noGrade+(S.noGrade===1 ? ' bestandenem Modul fehlt' : ' bestandenen Modulen fehlt')+' noch die Note.</p>' : '')+
+    '<div class="tuda-field prog-goal"><label class="tuda-label" for="goal">Wunschschnitt</label>'+selectHTML('goal', 'goal', goals, String(goal))+'</div>'+
+    (need ? '<p class="prog-lead">'+need+'</p>' : '')+
+    '<p class="tuda-hint">Gewichtet nach CP wie in der Prüfungsordnung: Bachelorthesis dreifach, Studium Generale zählt nicht. Der Schnitt wird nach der ersten Nachkommastelle abgeschnitten.</p>';
+  box.innerHTML = '<div class="ex-head"><h2 id="prog-h">Fortschritt</h2></div><div class="prog-grid"><article class="ex-card prog-card">'+kurs+'</article><article class="ex-card prog-card">'+note+'</article></div>';
 }
 function cleanJobs(raw, N){
   const out = [], ids = new Set();
@@ -3378,7 +3525,7 @@ ui.catQ = ''; ui.afq = ''; ui.pickSem = null; ui.formOpen = false;
 let form = {name:'', cp:'', nr:'', exam:''};
 let historyStack = [];
 let detail = null;
-function saveUI(){ lsSet(UI_KEY, JSON.stringify({catTab:ui.catTab, examSem:ui.examSem, catOpen:ui.catOpen, view:ui.view})); }
+function saveUI(){ lsSet(UI_KEY, JSON.stringify({catTab:ui.catTab, examSem:ui.examSem, catOpen:ui.catOpen, view:ui.view, goal:ui.goal})); }
 
 let dbRef = null, writing = false, dirty = false, saveTimer = null, editedEarly = false;
 function setSaveStatus(kind){
@@ -3471,7 +3618,8 @@ function setStatus(ref, patch){
   const s = Object.assign({st:'planned', fails:0}, statusRec(ref) || {}, patch);
   s.fails = Math.max(0, Math.min(MAX_TRIES, Math.round(+s.fails)||0));
   if (!['planned','registered','passed'].includes(s.st) || (s.fails >= MAX_TRIES && s.st==='passed')) s.st = 'planned';
-  if (s.st==='planned' && !s.fails) delete state.status[ref]; else state.status[ref] = {st:s.st, fails:s.fails};
+  if (s.st==='planned' && !s.fails) delete state.status[ref];
+  else { state.status[ref] = {st:s.st, fails:s.fails}; if (s.st==='passed' && GRADES.includes(+s.grade)) state.status[ref].grade = +s.grade; }
 }
 function pipsHTML(f, passed){ let h = '<span class="pips" aria-hidden="true">'; for (let i=0; i<MAX_TRIES; i++) h += '<i'+(i<f ? ' class="is-fail"' : passed && i===f ? ' class="is-pass"' : '')+'></i>'; return h+'</span>'; }
 function triesText(ref){
@@ -4099,7 +4247,11 @@ function statusCtl(ref){
   const radios = (name, act, opts, cur, dis) => '<div class="tuda-segmented">'+opts.map(([k,l,i])=>'<label class="tuda-segmented__item"><input type="radio" name="'+esc(name)+'" value="'+k+'" data-act="'+act+'" data-ref="'+esc(ref)+'"'+(String(cur)===String(k)?' checked':'')+(dis?' disabled':'')+'><span>'+(i?ic(i):'')+l+'</span></label>').join('')+'</div>';
   const note = triesText(ref) || 'Erster Versuch. Je Modulprüfung hast du an der TU Darmstadt höchstens drei Versuche.';
   const tone = fin || (f===MAX_TRIES-1 && st!=='passed') ? ' sev-bad' : f && st!=='passed' ? ' sev-warn' : '';
-  return '<fieldset class="tuda-fieldset"><legend class="tuda-legend">Status</legend>'+radios('st-'+ref, 'status', STATUS_OPTS, fin ? '' : st, fin)+'</fieldset>'+
+  const gw = gradeWeight(ref), rec = state.status[ref] || {}, d = defOf(ref) || {};
+  const gradeBox = st!=='passed' ? '' : '<fieldset class="tuda-fieldset"><legend class="tuda-legend">Note</legend>'+
+    selectHTML('', 'grade', [{value:'', label:'noch keine'}].concat(GRADES.map(g=>({value:String(g), label:gradeTxt(g)}))), rec.grade ? String(rec.grade) : '', 'Note')+
+    '<p class="tuda-hint">'+(gw ? (d.cat==='thesis' ? 'Die Bachelorthesis zählt in der Gesamtnote dreifach.' : 'Zählt mit '+cpTxt(+d.cp||0)+' CP in deinen Schnitt.') : 'Zählt nicht in die Gesamtnote.')+'</p></fieldset>';
+  return '<fieldset class="tuda-fieldset"><legend class="tuda-legend">Status</legend>'+radios('st-'+ref, 'status', STATUS_OPTS, fin ? '' : st, fin)+'</fieldset>'+gradeBox+
     '<fieldset class="tuda-fieldset"><legend class="tuda-legend">Fehlversuche</legend>'+radios('fv-'+ref, 'fails', FAIL_OPTS, f, false)+
     '<p class="tries-note'+tone+'">'+pipsHTML(f, st==='passed')+'<span>'+esc(note)+'</span></p></fieldset>'+
     (fin ? '<div class="tuda-alert tuda-alert--error">'+ic('alert-octagon')+'<div class="tuda-alert__content"><p class="tuda-alert__title">Endgültig nicht bestanden</p><p class="tuda-alert__text">Nach drei Fehlversuchen ist die Prüfung endgültig nicht bestanden. Kläre das weitere Vorgehen mit dem Studienbüro.</p></div></div>' : '');
@@ -4210,7 +4362,7 @@ function pickToast(ref, res){
 
 /* ---------- Alles rendern ---------- */
 function renderAll(){
-  try { renderTop(); renderBoard(); renderCatalog(); renderExams(); renderDetail(); rescue(false); }
+  try { renderTop(); renderBoard(); renderProgress(); renderCatalog(); renderExams(); renderDetail(); rescue(false); }
   catch(err){ console.error(err); rescue(true); }
 }
 /* Falls der Plan nicht gezeichnet werden kann: Hinweis mit Ausweg statt einer leeren Seite */
@@ -4667,6 +4819,8 @@ document.addEventListener('change', e=>{
   const act = a.dataset.act;
   if (act==='view'){ setView(a.value); return; }
   if (act==='status'){ const ref = a.dataset.ref, v = a.value; mutate(()=>setStatus(ref, {st:v})); return; }
+  if (act==='grade'){ const ref = detail && detail.type==='item' ? (findItem(detail.id)||{}).ref : null; if (ref){ const v = +a.value; mutate(()=>setStatus(ref, {grade: GRADES.includes(v) ? v : undefined})); } return; }
+  if (act==='goal'){ ui.goal = a.value; saveUI(); renderProgress(); return; }
   if (act==='fails'){
     const ref = a.dataset.ref, v = +a.value, before = failsOf(ref), st = statusOf(ref);
     // ein neuer Fehlversuch verbraucht die Anmeldung; danach geht es mit dem nächsten Versuch weiter
